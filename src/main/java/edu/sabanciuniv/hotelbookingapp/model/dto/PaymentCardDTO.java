@@ -1,33 +1,24 @@
 package edu.sabanciuniv.hotelbookingapp.model.dto;
 
-import edu.sabanciuniv.hotelbookingapp.validation.annotation.CardExpiry;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.CreditCardNumber;
 
 @Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class PaymentCardDTO {
-
-    @NotBlank(message = "Cardholder name cannot be empty")
-    @Pattern(regexp = "^[a-zA-Z\\s]*$", message = "Cardholder name must contain only letters and spaces")
-    @Size(min = 3, max = 50, message = "Cardholder name should be between 3 and 50 characters")
-    private String cardholderName;
-
-    // 16 digits + Luhn check
-    @CreditCardNumber(message = "Invalid credit card number")
+    
+    @NotEmpty(message = "Card number is required")
+    @Pattern(regexp = "^[0-9]{16}$", message = "Card number must be 16 digits")
     private String cardNumber;
 
-    @CardExpiry
-    private String expirationDate;
+    @NotEmpty(message = "Card holder name is required")
+    private String cardHolderName;
 
-    @Pattern(regexp = "^\\d{3}$", message = "CVC must be 3 digits")
-    private String cvc;
+    @NotEmpty(message = "Expiry date is required")
+    @Pattern(regexp = "^(0[1-9]|1[0-2])/([0-9]{2})$", message = "Expiry date must be in format MM/YY")
+    private String expiryDate;
+
+    @NotEmpty(message = "CVV is required")
+    @Pattern(regexp = "^[0-9]{3,4}$", message = "CVV must be 3 or 4 digits")
+    private String cvv;
 }

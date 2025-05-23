@@ -1,42 +1,78 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Your Bookings</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Your Bookings</h2>
-                <table class="table table-striped align-middle">
-                    <thead>
-                    <tr>
-                        <th>City</th>
-                        <th>Check-In</th>
-                        <th>Check-Out</th>
-                        <th>Hotel</th>
-                        <th>Total Price</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr class="align-middle" th:each="booking : ${bookings}">
-                        <td th:text="${booking.hotelAddress.city}"></td>
-                        <td th:text="${booking.checkinDate}"></td>
-                        <td th:text="${booking.checkoutDate}"></td>
-                        <td th:text="${booking.hotelName}"></td>
-                        <td th:text="'$ ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}"></td>
-                        <td>
-                            <a th:href="@{/customer/bookings/{id}(id=${booking.id})}" class="btn btn-primary btn-sm">Details</a>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
+<th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+<div class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">My Bookings</h1>
+                <p class="hero-description">View and manage your reservations</p>
+            </div>
+
+            <div th:if="${bookings.empty}" class="feature-card">
+                <i data-lucide="calendar-x" class="feature-icon"></i>
+                <h3 class="feature-title">No Bookings Found</h3>
+                <p class="feature-description">You haven't made any reservations yet.</p>
+                <a th:href="@{/search}" class="search-button">
+                    <i data-lucide="search"></i>
+                    <span>Search Hotels</span>
+                </a>
+            </div>
+
+            <div th:unless="${bookings.empty}" class="features">
+                <div th:each="booking : ${bookings}" class="feature-card booking-card">
+                    <div class="booking-header">
+                        <i data-lucide="building" class="feature-icon"></i>
+                        <h3 class="feature-title" th:text="${booking.hotelName}">Hotel Name</h3>
+                        <span class="booking-number" th:text="${booking.confirmationNumber}">ABC123</span>
+                    </div>
+
+                    <div class="booking-dates">
+                        <p class="booking-info">
+                            <i data-lucide="calendar-check" class="info-icon"></i>
+                            Check-in: <span th:text="${booking.checkinDate}"></span>
+                        </p>
+                        <p class="booking-info">
+                            <i data-lucide="calendar-x" class="info-icon"></i>
+                            Check-out: <span th:text="${booking.checkoutDate}"></span>
+                        </p>
+                    </div>
+
+                    <div class="booking-rooms">
+                        <div th:each="room : ${booking.roomSelections}" class="room-info">
+                            <i th:data-lucide="${room.roomType == 'SINGLE' ? 'bed-single' : 'bed-double'}" class="info-icon"></i>
+                            <span th:text="${room.roomType + ' Room × ' + room.count}"></span>
+                        </div>
+                    </div>
+
+                    <div class="booking-footer">
+                        <div class="booking-price">
+                            <span>Total Amount:</span>
+                            <span class="price-amount" th:text="'$ ' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}"></span>
+                        </div>
+                        <div class="booking-status" th:class="${booking.paymentStatus}">
+                            <i data-lucide="check-circle" class="status-icon"></i>
+                            <span th:text="${booking.paymentStatus}">Status</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</th:block>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

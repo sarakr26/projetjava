@@ -18,71 +18,79 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-@Slf4j 
+@Slf4j
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
-    private final AvailabilityService availabilityService;
     private final PaymentService paymentService;
     private final CustomerService customerService;
     private final HotelService hotelService;
 
-
     @Override
     @Transactional
-    public Booking saveBooking(BookingInitiationDTO bookingInitiationDTO, Long userId) {
-        validateBookingDates(bookingInitiationDTO.getCheckinDate(), bookingInitiationDTO.getCheckoutDate());
-
-        Customer customer = customerService.findByUserId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("Customer not found with user ID: " + userId));
-
-        Hotel hotel = hotelService.findHotelById(bookingInitiationDTO.getHotelId())
-                .orElseThrow(() -> new EntityNotFoundException("Hotel not found with ID: " + bookingInitiationDTO.getHotelId()));
-
-        Booking booking = mapBookingInitDtoToBookingModel(bookingInitiationDTO, customer, hotel);
-
-        return bookingRepository.save(booking);
+    public BookingDTO confirmBooking(BookingInitiationDTO bookingInitiationDTO, Long customerId) {
+        try {
+            log.info("Starting booking confirmation process for customer: {}", customerId);
+            
+            // Save initial booking
+            Booking booking = saveBooking(bookingInitiationDTO, customerId);
+            booking = bookingRepository.saveAndFlush(booking);
+            
+            // Process payment
+            Payment payment = paymentService.savePayment(bookingInitiationDTO, booking);
+            
+            // Update booking with payment reference
+            booking.setPayment(payment);
+            booking = bookingRepository.saveAndFlush(booking);
+            
+            log.info("Booking confirmed successfully. ID: {}, Payment ID: {}", 
+                    booking.getId(), payment.getId());
+            
+            return mapBookingModelToBookingDto(booking);
+        } catch (Exception e) {
+            log.error("Error confirming booking: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to confirm booking", e);
+        }
     }
 
     @Override
     @Transactional
-    public BookingDTO confirmBooking(BookingInitiationDTO bookingInitiationDTO, Long customerId) {
-        // Create validation chain
-        BookingValidator dateValidator = new DateValidator();
-        BookingValidator availabilityValidator = new RoomAvailabilityValidator();
-        dateValidator.setNext(availabilityValidator);
-        
-        // Create booking using builder
-        Booking booking = new BookingBuilder()
-            .withDates(bookingInitiationDTO.getCheckinDate(), bookingInitiationDTO.getCheckoutDate())
-            .withCustomer(customerId)
-            .withRooms(bookingInitiationDTO.getRoomSelections())
-            .build();
-            
-        // Validate
-        if (!dateValidator.validate(booking)) {
-            throw new IllegalStateException("Booking validation failed");
+    public Booking saveBooking(BookingInitiationDTO bookingInitiationDTO, Long customerId) {
+        Customer customer = customerService.findByUserId(customerId)
+                .orElseThrow(() -> new EntityNotFoundException("Customer not found"));
+
+        Hotel hotel = hotelService.findHotelById(bookingInitiationDTO.getHotelId())
+                .orElseThrow(() -> new EntityNotFoundException("Hotel not found"));
+
+        Booking booking = Booking.builder()
+                .customer(customer)
+                .hotel(hotel)
+                .checkinDate(bookingInitiationDTO.getCheckinDate())
+                .checkoutDate(bookingInitiationDTO.getCheckoutDate())
+                .bookedRooms(new ArrayList<>())
+                .build();
+
+        // Add booked rooms
+        for (RoomSelectionDTO roomSelection : bookingInitiationDTO.getRoomSelections()) {
+            if (roomSelection.getCount() > 0) {
+                BookedRoom bookedRoom = BookedRoom.builder()
+                        .booking(booking)
+                        .roomType(roomSelection.getRoomType())
+                        .count(roomSelection.getCount())
+                        .build();
+                booking.getBookedRooms().add(bookedRoom);
+            }
         }
-        
-        // Process payment using strategy
-        PaymentStrategy paymentStrategy = new CreditCardPaymentStrategy();
-        if (!paymentStrategy.processPayment(booking.getPayment())) {
-            throw new RuntimeException("Payment failed");
-        }
-        
-        // Notify observers
-        BookingSubject subject = new BookingSubject();
-        subject.attach(new EmailNotificationObserver());
-        subject.attach(new SMSNotificationObserver());
-        subject.notifyObservers(booking);
-        
-        return mapBookingModelToBookingDto(booking);
+
+        return bookingRepository.saveAndFlush(booking);
     }
 
     @Override
@@ -175,28 +183,6 @@ public class BookingServiceImpl implements BookingService {
                 .paymentStatus(booking.getPayment().getPaymentStatus())
                 .paymentMethod(booking.getPayment().getPaymentMethod())
                 .build();
-    }
-
-    private Booking mapBookingInitDtoToBookingModel(BookingInitiationDTO bookingInitiationDTO, Customer customer, Hotel hotel) {
-        Booking booking = Booking.builder()
-                .customer(customer)
-                .hotel(hotel)
-                .checkinDate(bookingInitiationDTO.getCheckinDate())
-                .checkoutDate(bookingInitiationDTO.getCheckoutDate())
-                .build();
-
-        for (RoomSelectionDTO roomSelection : bookingInitiationDTO.getRoomSelections()) {
-            if (roomSelection.getCount() > 0) {
-                BookedRoom bookedRoom = BookedRoom.builder()
-                        .booking(booking)
-                        .roomType(roomSelection.getRoomType())
-                        .count(roomSelection.getCount())
-                        .build();
-                booking.getBookedRooms().add(bookedRoom);
-            }
-        }
-
-        return booking;
     }
 
 }

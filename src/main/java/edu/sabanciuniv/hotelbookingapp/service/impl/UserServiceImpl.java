@@ -6,6 +6,7 @@ import edu.sabanciuniv.hotelbookingapp.model.dto.ResetPasswordDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.UserDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.UserRegistrationDTO;
 import edu.sabanciuniv.hotelbookingapp.model.enums.RoleType;
+import edu.sabanciuniv.hotelbookingapp.repository.AdminRepository;
 import edu.sabanciuniv.hotelbookingapp.repository.CustomerRepository;
 import edu.sabanciuniv.hotelbookingapp.repository.HotelManagerRepository;
 import edu.sabanciuniv.hotelbookingapp.repository.RoleRepository;
@@ -39,6 +40,7 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final CustomerRepository customerRepository;
     private final HotelManagerRepository hotelManagerRepository;
+    private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -59,6 +61,9 @@ public class UserServiceImpl implements UserService {
         } else if (RoleType.HOTEL_MANAGER.equals(registrationDTO.getRoleType())) {
             HotelManager hotelManager = HotelManager.builder().user(user).build();
             hotelManagerRepository.save(hotelManager);
+        } else if (RoleType.ADMIN.equals(registrationDTO.getRoleType())) {
+            Admin admin = Admin.builder().user(user).build();
+            adminRepository.save(admin);
         }
 
         User savedUser = userRepository.save(user);

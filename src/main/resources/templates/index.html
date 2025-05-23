@@ -1,34 +1,71 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Homepage</title>
-    <style>
-        body {
-            background-image: url('/img/maldives-bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-        }
-        .content {
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GuestGate - Your Gateway to Perfect Stays</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="content container pt-5">
-        <div class="row justify-content-center align-items-start">
-            <div class="col-12 text-center">
-                <h1 class="display-5 mb-5"><strong>"Every journey is a step closer to finding who you truly are."</strong></h1>
-                <p class="lead fs-3 mb-5">We believe in making your travel plans simple and enjoyable.<br>Let's start a new
-                    journey!</p>
-                <a href="/login" class="btn btn-primary btn-lg">Explore - Dream - Discover</a>
+    <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+    <div class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">"Every journey is a step closer to finding who you truly are."</h1>
+                    <p class="hero-description">
+                        We believe in making your travel plans simple and enjoyable.<br>
+                        Let's start a new journey!
+                    </p>
+                    <button class="cta-button">Explore - Dream - Discover</button>
+                </div>
+
+                <div class="search-form">
+                    <div class="input-group">
+                        <i data-lucide="map-pin" class="input-icon"></i>
+                        <input type="text" placeholder="Where to?" class="search-input">
+                    </div>
+                    <div class="input-group">
+                        <i data-lucide="calendar" class="input-icon"></i>
+                        <input type="date" class="search-input">
+                    </div>
+                    <button class="search-button">
+                        <i data-lucide="search"></i>
+                        <span>Search</span>
+                    </button>
+                </div>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <i data-lucide="building-2" class="feature-icon"></i>
+                        <h3 class="feature-title">Explore</h3>
+                        <p class="feature-description">Discover new destinations and adventures</p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="map" class="feature-icon"></i>
+                        <h3 class="feature-title">Plan</h3>
+                        <p class="feature-description">Create your perfect travel itinerary</p>
+                    </div>
+                    <div class="feature-card">
+                        <i data-lucide="plane" class="feature-icon"></i>
+                        <h3 class="feature-title">Travel</h3>
+                        <p class="feature-description">Experience the world with confidence</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</th:block>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            mobileMenu.classList.toggle('active');
+        }
+    </script>
 </body>
 </html>

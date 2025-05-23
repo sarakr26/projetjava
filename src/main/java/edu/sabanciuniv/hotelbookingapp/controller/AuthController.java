@@ -2,6 +2,7 @@ package edu.sabanciuniv.hotelbookingapp.controller;
 
 import edu.sabanciuniv.hotelbookingapp.exception.UsernameAlreadyExistsException;
 import edu.sabanciuniv.hotelbookingapp.model.enums.RoleType;
+import edu.sabanciuniv.hotelbookingapp.model.dto.AdminRegistrationDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.UserRegistrationDTO;
 import edu.sabanciuniv.hotelbookingapp.security.RedirectUtil;
 import edu.sabanciuniv.hotelbookingapp.service.UserService;
@@ -66,6 +67,27 @@ public class AuthController {
         log.info("Attempting to register manager account: {}", registrationDTO.getUsername());
         registrationDTO.setRoleType(RoleType.HOTEL_MANAGER);
         return registerUser(registrationDTO, result, "register-manager", "register/manager");
+    }
+
+    @GetMapping("/register/admin")
+    public String showAdminRegistrationForm(@ModelAttribute("user") AdminRegistrationDTO registrationDTO, Authentication authentication) {
+        String redirect = getAuthenticatedUserRedirectUrl(authentication);
+        if (redirect != null) return redirect;
+        log.info("Showing admin registration form");
+        return "register-admin";
+    }
+
+    @PostMapping("/register/admin")
+    public String registerAdminAccount(@Valid @ModelAttribute("user") AdminRegistrationDTO registrationDTO, BindingResult result) {
+        log.info("Attempting to register admin account: {}", registrationDTO.getUsername());
+        
+        if (!registrationDTO.getAdminCode().equals("ADMIN123")) {
+            result.rejectValue("adminCode", "invalid.adminCode", "Invalid admin code");
+            return "register-admin";
+        }
+        
+        registrationDTO.setRoleType(RoleType.ADMIN);
+        return registerUser(registrationDTO, result, "register-admin", "register/admin");
     }
 
     private String registerUser(UserRegistrationDTO registrationDTO, BindingResult result, String view, String redirectUrl) {

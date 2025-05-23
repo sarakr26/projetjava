@@ -1,57 +1,73 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Registration Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="text-center">Customer Registration</h2>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" th:action="@{/register/customer}" th:object="${user}">
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="username">Email:</label>
-                                <input class="form-control" id="username" type="email" th:field="*{username}"
-                                       placeholder="Enter email address" autofocus>
-                                <p class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="password">Password:</label>
-                                <input class="form-control" id="password" type="password" th:field="*{password}"
-                                       placeholder="Enter password">
-                                <p class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="name">First Name:</label>
-                                <input class="form-control" id="name" type="text" th:field="*{name}"
-                                       placeholder="Enter first name">
-                                <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="lastName">Last Name:</label>
-                                <input class="form-control" id="lastName" type="text" th:field="*{lastName}"
-                                       placeholder="Enter last name">
-                                <p class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <button type="submit" class="btn btn-primary">Register</button>
-                                <span>Already registered? <a th:href="@{/login}">Login here</a></span>
-                            </div>
-                            <div class="alert alert-success" th:if="${param.success}">
-                                Registration Successful!
-                            </div>
-                        </form>
-                    </div>
+    <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+    <div class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <div class="login-container">
+                    <h1 class="hero-title">Create Account</h1>
+                    <p class="hero-description">Join us and start your journey!</p>
+
+                    <form method="post" th:action="@{/register/customer}" th:object="${user}" class="search-form login-form">
+                        <div class="input-group">
+                            <i data-lucide="mail" class="input-icon"></i>
+                            <input class="search-input" id="username" type="email" th:field="*{username}"
+                                   placeholder="Enter your email" autofocus>
+                        </div>
+                        <p class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+
+                        <div class="input-group">
+                            <i data-lucide="lock" class="input-icon"></i>
+                            <input class="search-input" id="password" type="password" th:field="*{password}"
+                                   placeholder="Enter your password">
+                        </div>
+                        <p class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></p>
+
+                        <div class="input-group">
+                            <i data-lucide="user" class="input-icon"></i>
+                            <input class="search-input" id="name" type="text" th:field="*{name}"
+                                   placeholder="Enter your first name">
+                        </div>
+                        <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+
+                        <div class="input-group">
+                            <i data-lucide="user" class="input-icon"></i>
+                            <input class="search-input" id="lastName" type="text" th:field="*{lastName}"
+                                   placeholder="Enter your last name">
+                        </div>
+                        <p class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
+
+                        <button type="submit" class="search-button">
+                            <i data-lucide="user-plus"></i>
+                            <span>Register</span>
+                        </button>
+
+                        <div class="login-footer">
+                            <span>Already have an account? </span>
+                            <a th:href="@{/login}" class="register-link">Login here</a>
+                        </div>
+                    </form>
+                </div>
+
+                <div th:if="${param.success}" class="alert alert-success">
+                    Registration Successful!
                 </div>
             </div>
         </div>
     </div>
-</th:block>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

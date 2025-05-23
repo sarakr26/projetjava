@@ -1,46 +1,60 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <div th:if="${param.error}">
-                    <div class="alert alert-danger">Invalid Email or Password</div>
-                </div>
-                <div th:if="${param.logout}">
-                    <div class="alert alert-success">You have successfully logged out</div>
-                </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="text-center">Login</h2>
+<th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+<div class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <div th:if="${param.error}" class="alert alert-danger">
+                Invalid Email or Password
+            </div>
+            <div th:if="${param.logout}" class="alert alert-success">
+                You have successfully logged out
+            </div>
+
+            <div class="login-container">
+                <h1 class="hero-title">Welcome Back!</h1>
+                <p class="hero-description">Please login to your account</p>
+
+                <form method="post" th:action="@{/login}" class="search-form login-form">
+                    <div class="input-group">
+                        <i data-lucide="mail" class="input-icon"></i>
+                        <input class="search-input" id="username" name="username"
+                               type="email" placeholder="Enter your email" autofocus>
                     </div>
-                    <div class="card-body">
-                        <form method="post" th:action="@{/login}">
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="username">Email:</label>
-                                <input class="form-control" id="username" name="username" type="email" placeholder="Email" autofocus>
-                                <small class="form-text text-muted">e.g. example@gmail.com</small>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="password">Password:</label>
-                                <input class="form-control" id="password" name="password" type="password"
-                                       placeholder="Enter password">
-                            </div>
-                            <div class="form-group mb-3">
-                                <button type="submit" class="btn btn-primary">Login</button>
-                                <span>Not registered? <a th:href="@{/register/customer}">Register here</a></span>
-                            </div>
-                        </form>
+
+                    <div class="input-group">
+                        <i data-lucide="lock" class="input-icon"></i>
+                        <input class="search-input" id="password" name="password"
+                               type="password" placeholder="Enter your password">
                     </div>
-                </div>
+
+                    <button type="submit" class="search-button">
+                        <i data-lucide="log-in"></i>
+                        <span>Login</span>
+                    </button>
+
+                    <div class="login-footer">
+                        <span>Not registered? </span>
+                        <a th:href="@{/register/customer}" class="register-link">Create an account</a>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</th:block>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

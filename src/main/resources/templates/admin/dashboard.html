@@ -1,42 +1,81 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Admin Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-people-fill fs-1"></i>
-                        <h5 class="card-title">List Users</h5>
-                        <a th:href="@{/admin/users}" class="btn btn-primary">Go</a>
-                    </div>
+<th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+<div class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Admin Dashboard</h1>
+                <p class="hero-description">System Administration and Management</p>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <i data-lucide="users" class="feature-icon"></i>
+                    <h3 class="feature-title">Users Management</h3>
+                    <p class="feature-description">Manage user accounts and permissions</p>
+                    <a th:href="@{/admin/users}" class="search-button">
+                        <i data-lucide="user-cog"></i>
+                        <span>Manage Users</span>
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <i data-lucide="building" class="feature-icon"></i>
+                    <h3 class="feature-title">Hotels Management</h3>
+                    <p class="feature-description">Oversee all hotel properties</p>
+                    <a th:href="@{/admin/hotels}" class="search-button">
+                        <i data-lucide="list"></i>
+                        <span>View Hotels</span>
+                    </a>
+                </div>
+                
+                <div class="feature-card">
+                    <i data-lucide="book" class="feature-icon"></i>
+                    <h3 class="feature-title">Bookings Overview</h3>
+                    <p class="feature-description">Monitor all system bookings</p>
+                    <a th:href="@{/admin/bookings}" class="search-button">
+                        <i data-lucide="calendar"></i>
+                        <span>View Bookings</span>
+                    </a>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-building fs-1"></i>
-                        <h5 class="card-title">List Hotels</h5>
-                        <a th:href="@{/admin/hotels}" class="btn btn-primary">Go</a>
-                    </div>
+
+            <div class="features">
+                <div class="feature-card stats-card">
+                    <i data-lucide="users" class="feature-icon"></i>
+                    <h3 class="feature-title">Total Users</h3>
+                    <p class="stats-value" th:text="${totalUsers ?: 0}">0</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-body text-center">
-                        <i class="bi bi-bookmark-check fs-1"></i>
-                        <h5 class="card-title">List Bookings</h5>
-                        <a th:href="@{/admin/bookings}" class="btn btn-primary">Go</a>
-                    </div>
+
+                <div class="feature-card stats-card">
+                    <i data-lucide="building" class="feature-icon"></i>
+                    <h3 class="feature-title">Total Hotels</h3>
+                    <p class="stats-value" th:text="${totalHotels ?: 0}">0</p>
+                </div>
+
+                <div class="feature-card stats-card">
+                    <i data-lucide="book" class="feature-icon"></i>
+                    <h3 class="feature-title">Total Bookings</h3>
+                    <p class="stats-value" th:text="${totalBookings ?: 0}">0</p>
                 </div>
             </div>
         </div>
     </div>
-</th:block>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

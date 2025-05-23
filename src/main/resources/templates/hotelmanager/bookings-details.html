@@ -1,61 +1,129 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Booking Details</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details - Manager View</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Booking Details</h2>
-                    </div>
-                    <div class="card-body">
-                        <h5>Confirmation Number:</h5>
-                        <p class="mb-3" th:text="${bookingDTO.confirmationNumber}"></p>
-                        <hr>
-                        <h3 class="mb-2" th:text="${bookingDTO.hotelName}">Hotel</h3>
-                        <p class="small mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></p>
-                        <div class="row text-center my-5">
-                            <div class="col-md-4">
-                                <h5>Check-in</h5>
-                                <p th:text="${bookingDTO.checkinDate}"></p>
+    <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+    <div class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <div class="search-container">
+                    <a href="/manager/bookings" class="back-link">
+                        <i data-lucide="arrow-left"></i>
+                        <span>Back to Bookings</span>
+                    </a>
+
+                    <div class="booking-detail-card">
+                        <!-- Status Header -->
+                        <div class="booking-status-header">
+                            <div class="status-info">
+                                <span class="booking-tag" th:classappend="${bookingDTO.paymentStatus}">
+                                    <i data-lucide="check-circle"></i>
+                                    <span th:text="${bookingDTO.paymentStatus}">CONFIRMED</span>
+                                </span>
+                                <span class="booking-reference" th:text="${'Ref: ' + bookingDTO.confirmationNumber}">REF123</span>
                             </div>
-                            <div class="col-md-4">
-                                <h5>Check-out</h5>
-                                <p th:text="${bookingDTO.checkoutDate}"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>Duration</h5>
-                                <p th:text="${days} + ' night(s)'"></p>
+                            <div class="booking-date">
+                                <i data-lucide="calendar" class="info-icon"></i>
+                                <span th:text="${'Booked on: ' + #temporals.format(bookingDTO.bookingDate, 'dd MMM yyyy, HH:mm')}">
+                                    01 Jan 2024, 12:00
+                                </span>
                             </div>
                         </div>
-                        <h5>Rooms:</h5>
-                        <ul class="mb-3">
-                            <li th:each="room : ${bookingDTO.roomSelections}">
-                                <span th:text="${room.count}"></span> x <span th:text="${room.roomType}"></span>
-                            </li>
-                        </ul>
-                        <hr>
-                        <h3>Total Price:</h3>
-                        <p class="mb-3" th:text="'$ ' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')}"></p>
-                        <h5 class="small">Payment Method:</h5>
-                        <p class="small mb-3" th:text="${bookingDTO.paymentMethod}"></p>
-                        <hr>
-                        <h5>Guest Details:</h5>
-                        <p class="mb-2">Name: <span th:text="${bookingDTO.customerName}"></span></p>
-                        <p class="mb-3">Email: <span th:text="${bookingDTO.customerEmail}"></span></p>
+
+                        <!-- Guest Information -->
+                        <div class="detail-section">
+                            <h3 class="section-header">
+                                <i data-lucide="user" class="section-icon"></i>
+                                Guest Information
+                            </h3>
+                            <div class="info-grid">
+                                <div class="info-card">
+                                    <span class="info-label">Name</span>
+                                    <span class="info-value" th:text="${bookingDTO.customerName}">John Doe</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Email</span>
+                                    <span class="info-value" th:text="${bookingDTO.customerEmail}">john@example.com</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stay Details -->
+                        <div class="detail-section">
+                            <h3 class="section-header">
+                                <i data-lucide="hotel" class="section-icon"></i>
+                                Stay Details
+                            </h3>
+                            <div class="stay-info-grid">
+                                <div class="info-card">
+                                    <span class="info-label">Check-in</span>
+                                    <span class="info-value" th:text="${bookingDTO.checkinDate}">2024-01-01</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Check-out</span>
+                                    <span class="info-value" th:text="${bookingDTO.checkoutDate}">2024-01-05</span>
+                                </div>
+                                <div class="info-card">
+                                    <span class="info-label">Duration</span>
+                                    <span class="info-value highlight" th:text="${days + ' nights'}">4 nights</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Room Details -->
+                        <div class="detail-section">
+                            <h3 class="section-header">
+                                <i data-lucide="bed" class="section-icon"></i>
+                                Room Details
+                            </h3>
+                            <div class="rooms-grid">
+                                <div th:each="room : ${bookingDTO.roomSelections}" class="room-card">
+                                    <i th:data-lucide="${room.roomType == 'SINGLE' ? 'bed-single' : 'bed-double'}" 
+                                       class="room-type-icon"></i>
+                                    <div class="room-info">
+                                        <span class="room-type" th:text="${room.roomType}">SINGLE</span>
+                                        <span class="room-count" th:text="${room.count + ' Room(s)'}">1 Room(s)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Information -->
+                        <div class="detail-section">
+                            <h3 class="section-header">
+                                <i data-lucide="credit-card" class="section-icon"></i>
+                                Payment Details
+                            </h3>
+                            <div class="payment-details-grid">
+                                <div class="info-card">
+                                    <span class="info-label">Payment Method</span>
+                                    <span class="info-value" th:text="${bookingDTO.paymentMethod}">Credit Card</span>
+                                </div>
+                                <div class="info-card total-amount">
+                                    <span class="info-label">Total Amount</span>
+                                    <span class="info-value price" 
+                                          th:text="'$' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 0, 'COMMA', 2, 'POINT')}">
+                                        $0.00
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-3">
-                    <a href="/manager/bookings" class="btn btn-primary">Back to Bookings</a>
                 </div>
             </div>
         </div>
     </div>
-</th:block>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

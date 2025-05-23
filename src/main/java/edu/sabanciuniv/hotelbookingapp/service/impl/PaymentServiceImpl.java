@@ -12,7 +12,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+
 @Service
+@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentServiceImpl implements PaymentService {
@@ -21,17 +25,22 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public Payment savePayment(BookingInitiationDTO bookingInitiationDTO, Booking booking) {
-        Payment payment = Payment.builder()
-                .booking(booking)
-                .totalPrice(bookingInitiationDTO.getTotalPrice())
-                .paymentStatus(PaymentStatus.COMPLETED) // Assuming the payment is completed
-                .paymentMethod(PaymentMethod.CREDIT_CARD) // Default to CREDIT_CARD
-                .currency(Currency.USD) // Default to USD
-                .build();
+        try {
+            Payment payment = Payment.builder()
+                    .booking(booking)
+                    .totalPrice(new BigDecimal(String.valueOf(bookingInitiationDTO.getTotalPrice())))
+                    .paymentStatus(PaymentStatus.COMPLETED) // Assuming the payment is completed
+                    .paymentMethod(PaymentMethod.CREDIT_CARD) // Default to CREDIT_CARD
+                    .currency(Currency.USD) // Default to USD
+                    .build();
 
-        Payment savedPayment = paymentRepository.save(payment);
-        log.info("Payment saved with transaction ID: {}", savedPayment.getTransactionId());
-
-        return savedPayment;
+            payment = paymentRepository.saveAndFlush(payment); // Use saveAndFlush to ensure immediate persistence
+            booking.setPayment(payment);
+            log.info("Payment saved successfully with ID: {} for booking: {}", payment.getId(), booking.getId());
+            return payment;
+        } catch (Exception e) {
+            log.error("Error saving payment: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to process payment", e);
+        }
     }
 }

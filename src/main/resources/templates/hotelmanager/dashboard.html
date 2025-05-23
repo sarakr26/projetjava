@@ -1,42 +1,61 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Manager Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manager Dashboard - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-<div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="bi bi-plus-square-dotted fs-1"></i>
-                    <h5 class="card-title">Add Hotel</h5>
-                    <a th:href="@{/manager/hotels/add}" class="btn btn-primary">Go</a>
+    <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+    <div class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Manager Dashboard</h1>
+                    <p class="hero-description">Manage your properties and bookings</p>
                 </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="bi bi-building fs-1"></i>
-                    <h5 class="card-title">My Hotels</h5>
-                    <a th:href="@{/manager/hotels}" class="btn btn-primary">Go</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="bi bi-calendar-check fs-1"></i>
-                    <h5 class="card-title">Hotel Bookings</h5>
-                    <a th:href="@{/manager/bookings}" class="btn btn-primary">Go</a>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <i data-lucide="plus-circle" class="feature-icon"></i>
+                        <h3 class="feature-title">Add New Hotel</h3>
+                        <p class="feature-description">List a new property on our platform</p>
+                        <a th:href="@{/manager/hotels/add}" class="search-button">
+                            <i data-lucide="plus"></i>
+                            <span>Add Hotel</span>
+                        </a>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i data-lucide="building" class="feature-icon"></i>
+                        <h3 class="feature-title">My Hotels</h3>
+                        <p class="feature-description">Manage your existing properties</p>
+                        <a th:href="@{/manager/hotels}" class="search-button">
+                            <i data-lucide="list"></i>
+                            <span>View Hotels</span>
+                        </a>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i data-lucide="calendar" class="feature-icon"></i>
+                        <h3 class="feature-title">Bookings</h3>
+                        <p class="feature-description">View and manage reservations</p>
+                        <a th:href="@{/manager/bookings}" class="search-button">
+                            <i data-lucide="bookmark"></i>
+                            <span>View Bookings</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-</th:block>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        lucide.createIcons();
+    </script>
 </body>
 </html>

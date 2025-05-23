@@ -1,96 +1,102 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Search Hotel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Hotels - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <div class="mb-3">
-                    <img class="img-fluid rounded" src="/img/map-banner.jpg" alt="Map Banner">
+    <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+    <div class="hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Your Perfect Stay Awaits</h1>
+                    <p class="hero-description">Find and book accommodations worldwide</p>
                 </div>
+
+                <div class="search-container">
+                    <form method="post" th:action="@{/search}" th:object="${hotelSearchDTO}" class="search-form">
+                        <div class="input-group">
+                            <i data-lucide="map-pin" class="input-icon"></i>
+                            <input class="search-input" type="text" th:field="*{city}" 
+                                   placeholder="Search by city (e.g., Istanbul, Ankara)" 
+                                   list="cities" required>
+                            <datalist id="cities">
+                                <option value="Istanbul">Istanbul</option>
+                                <option value="Ankara">Ankara</option>
+                                <option value="Izmir">Izmir</option>
+                                <!-- Add more cities as needed -->
+                            </datalist>
+                            <p class="text-danger" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></p>
+                        </div>
+
+                        <div class="input-group">
+                            <i data-lucide="calendar-check" class="input-icon"></i>
+                            <input class="search-input" type="date" th:field="*{checkinDate}" required
+                                   th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                            <p class="text-danger" th:if="${#fields.hasErrors('checkinDate')}" th:errors="*{checkinDate}"></p>
+                        </div>
+
+                        <div class="input-group">
+                            <i data-lucide="calendar-x" class="input-icon"></i>
+                            <input class="search-input" type="date" th:field="*{checkoutDate}" required
+                                   th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}">
+                            <p class="text-danger" th:if="${#fields.hasErrors('checkoutDate')}" th:errors="*{checkoutDate}"></p>
+                        </div>
+
+                        <button type="submit" class="search-button">
+                            <i data-lucide="search"></i>
+                            <span>Find Hotels</span>
+                        </button>
+                    </form>
+                </div>
+
                 <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="text-center">Search for Hotels</h2>
+
+                <div class="features">
+                    <div class="feature-card">
+                        <i data-lucide="building" class="feature-icon"></i>
+                        <h3 class="feature-title">Wide Selection</h3>
+                        <p class="feature-description">Choose from thousands of hotels worldwide</p>
                     </div>
-                    <div class="card-body">
-                        <form method="post" th:action="@{/search}" th:object="${hotelSearchDTO}">
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="city">City:</label>
-                                <input class="form-control" id="city" type="text" th:field="*{city}"
-                                       placeholder="Enter city" autofocus>
-                                <p class="text-danger" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="checkinDate">Check-in Date:</label>
-                                <input class="form-control" id="checkinDate" type="text" th:field="*{checkinDate}">
-                                <p class="text-danger" th:if="${#fields.hasErrors('checkinDate')}" th:errors="*{checkinDate}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="checkoutDate">Check-out Date:</label>
-                                <input class="form-control" id="checkoutDate" type="text" th:field="*{checkoutDate}">
-                                <p class="text-danger" th:if="${#fields.hasErrors('checkoutDate')}" th:errors="*{checkoutDate}"></p>
-                            </div>
-                            <div class="form-group mb-3">
-                                <button type="submit" class="btn btn-primary">Search</button>
-                            </div>
-                        </form>
+                    
+                    <div class="feature-card">
+                        <i data-lucide="shield-check" class="feature-icon"></i>
+                        <h3 class="feature-title">Secure Booking</h3>
+                        <p class="feature-description">Book with confidence using our secure platform</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <i data-lucide="credit-card" class="feature-icon"></i>
+                        <h3 class="feature-title">Best Price</h3>
+                        <p class="feature-description">Find the best rates for your stay</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</th:block>
-<th:block layout:fragment="additional-scripts">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
     <script>
-        $(document).ready(function () {
-            const displayFormat = "dd.mm.yy";
-            const submitFormat = "yy-mm-dd"; // Format that Spring Boot expects for LocalDate
+        lucide.createIcons();
 
-            // Block invalid characters for city input
-            $("#city").on("input", function () {
-                var value = $(this).val();
-                var filteredValue = value.replace(/[^A-Za-z\s'-]/g, "");
-                $(this).val(filteredValue);
-            });
+        function selectCity(city) {
+            document.querySelector('input[name="city"]').value = city;
+        }
 
-            // Initialize checkinDate
-            $("#checkinDate").datepicker({
-                dateFormat: displayFormat,
-                minDate: 0,
-                onClose: function (selectedDate) {
-                    if (selectedDate) {
-                        var checkoutMinDate = $.datepicker.parseDate(displayFormat, selectedDate);
-                        checkoutMinDate.setDate(checkoutMinDate.getDate() + 1); // Minimum 1 day after check-in
-                        $("#checkoutDate").datepicker("option", "minDate", checkoutMinDate);
-                    }
-                }
-            }).attr('readonly', 'readonly');
+        // Set minimum date for check-in and check-out
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelector('input[name="checkinDate"]').min = today;
+        document.querySelector('input[name="checkoutDate"]').min = today;
 
-            // Initialize checkoutDate
-            $("#checkoutDate").datepicker({
-                dateFormat: displayFormat,
-                minDate: +1
-            }).attr('readonly', 'readonly');
-
-            // Reformat dates on form submit
-            $("form").on("submit", function () {
-                var checkinDate = $('#checkinDate').datepicker('getDate');
-                var checkoutDate = $('#checkoutDate').datepicker('getDate');
-                $('#checkinDate').val($.datepicker.formatDate(submitFormat, checkinDate));
-                $('#checkoutDate').val($.datepicker.formatDate(submitFormat, checkoutDate));
-            });
-
-            // Placeholder
-            $("#checkinDate, #checkoutDate").each(function () {
-                $(this).attr("placeholder", "Select date");
-            });
+        // Update check-out minimum date when check-in is selected
+        document.querySelector('input[name="checkinDate"]').addEventListener('change', function() {
+            document.querySelector('input[name="checkoutDate"]').min = this.value;
         });
     </script>
-</th:block>
 </body>
 </html>

@@ -1,66 +1,107 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Booking Confirmation</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <div class="alert alert-success d-flex justify-content-center align-items-center">
-                    <i class="bi bi-check-circle-fill fs-5 me-2"></i>
-                    <span class="fs-5">Your booking is confirmed!</span>
+<th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+<div class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="success-icon">
+                    <i data-lucide="check-circle"></i>
                 </div>
-                <div class="card">
-                    <div class="card-header">
-                        <h2>Booking Confirmation</h2>
+                <h1 class="hero-title">Booking Confirmed!</h1>
+                <p class="hero-description">Thank you for your reservation</p>
+            </div>
+
+            <div class="search-container">
+                <div class="feature-card">
+                    <div class="booking-header">
+                        <h3 class="feature-title">Booking Details</h3>
+                        <span class="booking-number" th:text="${'Ref: ' + bookingDTO.confirmationNumber}">Ref: ABC123</span>
                     </div>
-                    <div class="card-body">
-                        <h5>Confirmation Number:</h5>
-                        <p class="mb-3" th:text="${bookingDTO.confirmationNumber}"></p>
-                        <hr>
-                        <h3 class="mb-2" th:text="${bookingDTO.hotelName}">Hotel</h3>
-                        <p class="small mb-4" th:text="${bookingDTO.hotelAddress.addressLine + ', ' + bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}"></p>
-                        <div class="row text-center my-5">
-                            <div class="col-md-4">
-                                <h5>Check-in</h5>
-                                <p th:text="${bookingDTO.checkinDate}"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>Check-out</h5>
-                                <p th:text="${bookingDTO.checkoutDate}"></p>
-                            </div>
-                            <div class="col-md-4">
-                                <h5>Duration</h5>
-                                <p th:text="${days} + ' night(s)'"></p>
-                            </div>
+
+                    <!-- Duration -->
+                    <div class="stay-duration">
+                        <i data-lucide="clock" class="info-icon"></i>
+                        <span>Duration: </span>
+                        <span th:text="${days + ' nights'}" class="duration-value">5 nights</span>
+                    </div>
+
+                    <!-- Guest Details -->
+                    <div class="guest-info">
+                        <h4 class="section-title">Guest Information</h4>
+                        <p class="guest-detail">
+                            <i data-lucide="user" class="info-icon"></i>
+                            <span th:text="${bookingDTO.customerName}">Guest Name</span>
+                        </p>
+                        <p class="guest-detail">
+                            <i data-lucide="mail" class="info-icon"></i>
+                            <span th:text="${bookingDTO.customerEmail}">guest@email.com</span>
+                        </p>
+                        <p class="guest-detail">
+                            <i data-lucide="calendar" class="info-icon"></i>
+                            <span>Booked on: </span>
+                            <span th:text="${#temporals.format(bookingDTO.bookingDate, 'dd MMM yyyy, HH:mm')}">01 Jan 2024, 12:00</span>
+                        </p>
+                    </div>
+
+                    <div class="dates-info">
+                        <div class="date-block">
+                            <i data-lucide="calendar-check" class="info-icon"></i>
+                            <span>Check-in: <span th:text="${bookingDTO.checkinDate}">2023-12-01</span></span>
                         </div>
-                        <h5>Rooms:</h5>
-                        <ul class="mb-3">
-                            <li th:each="room : ${bookingDTO.roomSelections}">
-                                <span th:text="${room.count}"></span> x <span th:text="${room.roomType}"></span>
-                            </li>
-                        </ul>
-                        <hr>
-                        <h3>Total Price:</h3>
-                        <p class="mb-3" th:text="'$ ' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')}"></p>
-                        <h5 class="small">Payment Method:</h5>
-                        <p class="small mb-3" th:text="${bookingDTO.paymentMethod}"></p>
-                        <hr>
-                        <h5>Guest Details:</h5>
-                        <p class="mb-2">Name: <span th:text="${bookingDTO.customerName}"></span></p>
-                        <p class="mb-3">Email: <span th:text="${bookingDTO.customerEmail}"></span></p>
+                        <div class="date-block">
+                            <i data-lucide="calendar-x" class="info-icon"></i>
+                            <span>Check-out: <span th:text="${bookingDTO.checkoutDate}">2023-12-05</span></span>
+                        </div>
                     </div>
-                </div>
-                <div class="mt-3 text-end">
-                    <a href="/" class="btn btn-outline-primary">Back to Home</a>
-                    <a href="/customer/bookings" class="btn btn-primary">My Bookings</a>
+
+                    <div class="hotel-info">
+                        <p>
+                            <i data-lucide="building" class="info-icon"></i>
+                            <span th:text="${bookingDTO.hotelName}">Hotel Name</span>
+                        </p>
+                        <p>
+                            <i data-lucide="map-pin" class="info-icon"></i>
+                            <span th:text="${bookingDTO.hotelAddress.city + ', ' + bookingDTO.hotelAddress.country}">Location</span>
+                        </p>
+                    </div>
+
+                    <div class="booking-rooms">
+                        <div th:each="room : ${bookingDTO.roomSelections}" class="room-info">
+                            <i th:data-lucide="${room.roomType == 'SINGLE' ? 'bed-single' : 'bed-double'}" class="info-icon"></i>
+                            <span th:text="${room.roomType + ' Room × ' + room.count}"></span>
+                        </div>
+                    </div>
+
+                    <div class="total-price">
+                        <span>Total Amount:</span>
+                        <span class="price-amount" th:text="'$' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 0, 'COMMA', 2, 'POINT')}">$0.00</span>
+                    </div>
+
+                    <div class="booking-actions">
+                        <a href="/customer/bookings" class="search-button">
+                            <i data-lucide="list"></i>
+                            <span>View My Bookings</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</th:block>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>

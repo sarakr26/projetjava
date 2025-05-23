@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Manager Registration - GuestGate</title>
+    <title>Admin Registration - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
 </head>
@@ -14,10 +14,10 @@
     <div class="hero-overlay">
         <div class="hero-content">
             <div class="login-container">
-                <h1 class="hero-title">Hotel Manager Registration</h1>
-                <p class="hero-description">Start listing your property today!</p>
+                <h1 class="hero-title">Admin Registration</h1>
+                <p class="hero-description">Create an admin account</p>
 
-                <form method="post" th:action="@{/register/manager}" th:object="${user}" class="search-form login-form">
+                <form method="post" th:action="@{/register/admin}" th:object="${user}" class="search-form login-form">
                     <div class="input-group">
                         <i data-lucide="mail" class="input-icon"></i>
                         <input class="search-input" id="username" type="email" th:field="*{username}"
@@ -46,9 +46,16 @@
                     </div>
                     <p class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
 
+                    <div class="input-group">
+                        <i data-lucide="key" class="input-icon"></i>
+                        <input class="search-input" id="adminCode" type="password" th:field="*{adminCode}"
+                               placeholder="Enter admin code">
+                    </div>
+                    <p class="text-danger" th:if="${#fields.hasErrors('adminCode')}" th:errors="*{adminCode}"></p>
+
                     <button type="submit" class="search-button">
-                        <i data-lucide="building-2"></i>
-                        <span>Register as Manager</span>
+                        <i data-lucide="user-plus"></i>
+                        <span>Register as Admin</span>
                     </button>
 
                     <div class="login-footer">
