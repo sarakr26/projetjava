@@ -1,6 +1,7 @@
 package edu.sabanciuniv.hotelbookingapp.controller;
 
 import edu.sabanciuniv.hotelbookingapp.model.dto.*;
+import edu.sabanciuniv.hotelbookingapp.model.enums.PaymentMethod;
 import edu.sabanciuniv.hotelbookingapp.service.BookingService;
 import edu.sabanciuniv.hotelbookingapp.service.HotelService;
 import edu.sabanciuniv.hotelbookingapp.service.UserService;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
@@ -54,30 +56,59 @@ public class BookingController {
         model.addAttribute("bookingInitiationDTO", bookingInitiationDTO);
         model.addAttribute("hotelDTO", hotelDTO);
         model.addAttribute("paymentCardDTO", new PaymentCardDTO());
+        model.addAttribute("paypalPaymentDTO", new PayPalPaymentDTO());
 
         return "booking/payment";
     }
 
     @PostMapping("/payment")
-    public String confirmBooking(@Valid @ModelAttribute("paymentCardDTO") PaymentCardDTO paymentDTO, BindingResult result, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String confirmBooking(
+            @RequestParam("paymentMethod") PaymentMethod paymentMethod,
+            @Valid @ModelAttribute("paymentCardDTO") PaymentCardDTO paymentCardDTO,
+            @Valid @ModelAttribute("paypalPaymentDTO") PayPalPaymentDTO paypalPaymentDTO,
+            BindingResult result,
+            Model model,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
+
+        log.debug("Received payment method: {}", paymentMethod);
+
         BookingInitiationDTO bookingInitiationDTO = (BookingInitiationDTO) session.getAttribute("bookingInitiationDTO");
         log.debug("BookingInitiationDTO retrieved from session at the beginning of completeBooking: {}", bookingInitiationDTO);
+
         if (bookingInitiationDTO == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Your session has expired. Please start a new search.");
             return "redirect:/search";
         }
 
-        if (result.hasErrors()) {
-            log.warn("Validation errors occurred while completing booking");
-            HotelDTO hotelDTO = hotelService.findHotelDtoById(bookingInitiationDTO.getHotelId());
-            model.addAttribute("bookingInitiationDTO", bookingInitiationDTO);
-            model.addAttribute("hotelDTO", hotelDTO);
-            model.addAttribute("paymentCardDTO", paymentDTO);
-            return "booking/payment";
+        // Validate the appropriate payment form based on the selected payment method
+        if (paymentMethod == PaymentMethod.PAYPAL) {
+            if (result.hasFieldErrors("paypalEmail")) {
+                log.warn("PayPal validation errors occurred");
+                HotelDTO hotelDTO = hotelService.findHotelDtoById(bookingInitiationDTO.getHotelId());
+                model.addAttribute("bookingInitiationDTO", bookingInitiationDTO);
+                model.addAttribute("hotelDTO", hotelDTO);
+                model.addAttribute("paypalPaymentDTO", paypalPaymentDTO);
+                return "booking/payment";
+            }
+        } else {
+            if (result.hasFieldErrors("cardNumber") || result.hasFieldErrors("cardHolderName")
+                || result.hasFieldErrors("expiryDate") || result.hasFieldErrors("cvv")) {
+                log.warn("Card validation errors occurred");
+                HotelDTO hotelDTO = hotelService.findHotelDtoById(bookingInitiationDTO.getHotelId());
+                model.addAttribute("bookingInitiationDTO", bookingInitiationDTO);
+                model.addAttribute("hotelDTO", hotelDTO);
+                model.addAttribute("paymentCardDTO", paymentCardDTO);
+                return "booking/payment";
+            }
         }
 
         try {
             Long userId = getLoggedInUserId();
+            // Set the payment method in the booking initiation DTO
+            bookingInitiationDTO.setPaymentMethod(paymentMethod);
+            log.debug("Payment method set in BookingInitiationDTO: {}", bookingInitiationDTO.getPaymentMethod());
+
             BookingDTO bookingDTO = bookingService.confirmBooking(bookingInitiationDTO, userId);
             redirectAttributes.addFlashAttribute("bookingDTO", bookingDTO);
 

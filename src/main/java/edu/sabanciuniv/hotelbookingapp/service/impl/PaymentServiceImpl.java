@@ -30,11 +30,11 @@ public class PaymentServiceImpl implements PaymentService {
                     .booking(booking)
                     .totalPrice(new BigDecimal(String.valueOf(bookingInitiationDTO.getTotalPrice())))
                     .paymentStatus(PaymentStatus.COMPLETED) // Assuming the payment is completed
-                    .paymentMethod(PaymentMethod.CREDIT_CARD) // Default to CREDIT_CARD
+                    .paymentMethod(bookingInitiationDTO.getPaymentMethod())
                     .currency(Currency.USD) // Default to USD
                     .build();
 
-            payment = paymentRepository.saveAndFlush(payment); // Use saveAndFlush to ensure immediate persistence
+            payment = paymentRepository.saveAndFlush(payment);
             booking.setPayment(payment);
             log.info("Payment saved successfully with ID: {} for booking: {}", payment.getId(), booking.getId());
             return payment;

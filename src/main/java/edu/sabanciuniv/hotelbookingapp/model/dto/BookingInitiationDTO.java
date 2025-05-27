@@ -1,5 +1,6 @@
 package edu.sabanciuniv.hotelbookingapp.model.dto;
 
+import edu.sabanciuniv.hotelbookingapp.model.enums.PaymentMethod;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,5 +23,6 @@ public class BookingInitiationDTO {
     private long durationDays;
     private List<RoomSelectionDTO> roomSelections = new ArrayList<>();
     private BigDecimal totalPrice;
+    private PaymentMethod paymentMethod;
 
 }

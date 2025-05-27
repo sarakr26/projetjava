@@ -6,6 +6,36 @@
     <title>Payment - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <style>
+        .payment-methods {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .payment-method {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .payment-method.active {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .payment-method i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .payment-form {
+            display: none;
+        }
+        .payment-form.active {
+            display: block;
+        }
+    </style>
 </head>
 <body>
     <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
@@ -38,8 +68,26 @@
                         </div>
                     </div>
 
-                    <!-- Payment Form -->
-                    <form method="post" th:action="@{/booking/payment}" th:object="${paymentCardDTO}" class="search-form login-form">
+                    <!-- Payment Method Selection -->
+                    <div class="payment-methods">
+                        <div class="payment-method active" data-method="credit-card">
+                            <i data-lucide="credit-card"></i>
+                            <div>Credit Card</div>
+                        </div>
+                        <div class="payment-method" data-method="debit-card">
+                            <i data-lucide="credit-card"></i>
+                            <div>Debit Card</div>
+                        </div>
+                        <div class="payment-method" data-method="paypal">
+                            <i data-lucide="paypal"></i>
+                            <div>PayPal</div>
+                        </div>
+                    </div>
+
+                    <!-- Credit/Debit Card Form -->
+                    <form method="post" th:action="@{/booking/payment}" th:object="${paymentCardDTO}" class="search-form login-form payment-form active" id="card-form">
+                        <input type="hidden" name="paymentMethod" value="CREDIT_CARD" id="card-payment-method">
+                        
                         <div class="input-group">
                             <i data-lucide="credit-card" class="input-icon"></i>
                             <input class="search-input" type="text" th:field="*{cardNumber}" placeholder="Card Number">
@@ -69,6 +117,22 @@
                             <span>Pay Securely</span>
                         </button>
                     </form>
+
+                    <!-- PayPal Form -->
+                    <form method="post" th:action="@{/booking/payment}" th:object="${paypalPaymentDTO}" class="search-form login-form payment-form" id="paypal-form">
+                        <input type="hidden" name="paymentMethod" value="PAYPAL">
+                        
+                        <div class="input-group">
+                            <i data-lucide="mail" class="input-icon"></i>
+                            <input class="search-input" type="email" th:field="*{paypalEmail}" placeholder="PayPal Email">
+                            <p class="text-danger" th:if="${#fields.hasErrors('paypalEmail')}" th:errors="*{paypalEmail}"></p>
+                        </div>
+
+                        <button type="submit" class="search-button">
+                            <i data-lucide="paypal"></i>
+                            <span>Pay with PayPal</span>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -77,6 +141,27 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script>
         lucide.createIcons();
+
+        // Payment method switcher
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                // Remove active class from all methods and forms
+                document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('active'));
+                document.querySelectorAll('.payment-form').forEach(f => f.classList.remove('active'));
+                
+                // Add active class to selected method
+                method.classList.add('active');
+                
+                // Show corresponding form
+                const methodType = method.dataset.method;
+                if (methodType === 'credit-card' || methodType === 'debit-card') {
+                    document.getElementById('card-form').classList.add('active');
+                    document.getElementById('card-payment-method').value = methodType === 'credit-card' ? 'CREDIT_CARD' : 'DEBIT_CARD';
+                } else if (methodType === 'paypal') {
+                    document.getElementById('paypal-form').classList.add('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>
