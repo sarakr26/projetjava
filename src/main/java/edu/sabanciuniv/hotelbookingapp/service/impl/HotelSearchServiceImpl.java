@@ -4,6 +4,7 @@ import edu.sabanciuniv.hotelbookingapp.model.Hotel;
 import edu.sabanciuniv.hotelbookingapp.model.enums.RoomType;
 import edu.sabanciuniv.hotelbookingapp.model.dto.AddressDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.HotelAvailabilityDTO;
+import edu.sabanciuniv.hotelbookingapp.model.dto.HotelAmenityDTO;
 import edu.sabanciuniv.hotelbookingapp.model.dto.RoomDTO;
 import edu.sabanciuniv.hotelbookingapp.repository.HotelRepository;
 import edu.sabanciuniv.hotelbookingapp.service.*;
@@ -91,6 +92,14 @@ public class HotelSearchServiceImpl implements HotelSearchService {
                 .name(hotel.getName())
                 .addressDTO(addressDTO)
                 .roomDTOs(roomDTOs)
+                .amenities(hotel.getAmenities().stream()
+                    .map(amenity -> HotelAmenityDTO.builder()
+                        .id(amenity.getId())
+                        .serviceType(amenity.getServiceType())
+                        .pricePerDay(amenity.getPricePerDay())
+                        .available(amenity.isAvailable())
+                        .build())
+                    .collect(Collectors.toList()))
                 .build();
         
         // For each room type, find the minimum available rooms across the date range

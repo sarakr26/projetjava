@@ -72,6 +72,28 @@
                                    th:value="${room.roomType.name()}"/>
                         </div>
 
+                        <div class="service-selection">
+                            <h3 class="feature-title">Available Services</h3>
+                            <div th:each="amenity : ${hotel.amenities}" class="service-item" th:if="${amenity.available}">
+                                <div class="service-info">
+                                    <i data-lucide="check-circle" class="info-icon"></i>
+                                    <span th:text="${amenity.serviceType}">Service Type</span>
+                                    <span class="service-price" th:text="'$ ' + ${#numbers.formatDecimal(amenity.pricePerDay, 0, 'COMMA', 2, 'POINT')} + ' per day'"></span>
+                                </div>
+                                
+                                <div class="service-selection-controls">
+                                    <select class="service-select" 
+                                            th:name="${'serviceSelections[' + amenity.id + '].count'}"
+                                            th:data-duration-price="${amenity.pricePerDay * durationDays}">
+                                        <option th:each="num : ${#numbers.sequence(0, 10)}"
+                                                th:value="${num}" th:text="${num}"></option>
+                                    </select>
+                                    <input type="hidden" th:name="${'serviceSelections[' + amenity.id + '].serviceType'}"
+                                           th:value="${amenity.serviceType}"/>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="booking-summary">
                             <div class="total-price">
                                 <span>Total Amount:</span>
@@ -102,16 +124,25 @@
         
         $(document).ready(function() {
             const roomSelect = $(".room-select");
+            const serviceSelect = $(".service-select");
             const reserveButton = $("#reserve-button");
 
-            // Calcul du total
+            // Calculate total
             function calculateTotal() {
                 let total = 0;
+                
+                // Calculate room costs
                 roomSelect.each(function() {
                     const durationPrice = parseFloat($(this).data("duration-price"));
                     const count = parseInt($(this).val()) || 0;
                     total += durationPrice * count;
-                    $(this).siblings("#roomCountInput").val(count);
+                });
+
+                // Calculate service costs
+                serviceSelect.each(function() {
+                    const durationPrice = parseFloat($(this).data("duration-price"));
+                    const count = parseInt($(this).val()) || 0;
+                    total += durationPrice * count;
                 });
 
                 $("#totalPrice").html(`<strong>$ ${total.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</strong>`);
@@ -126,7 +157,8 @@
             }
 
             roomSelect.on("change", calculateTotal);
-            calculateTotal(); // Calcul initial
+            serviceSelect.on("change", calculateTotal);
+            calculateTotal(); // Initial calculation
         });
     </script>
 </body>

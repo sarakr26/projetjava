@@ -176,9 +176,31 @@ public class HotelServiceImpl implements HotelService {
 
         hotelDTO.getRoomDTOs().forEach(roomService::updateRoom);
 
+        // Update amenities
+        if (hotelDTO.getAmenities() != null) {
+            // Create a map of submitted amenities for easier lookup
+            java.util.Map<Long, HotelAmenityDTO> submittedAmenitiesMap = hotelDTO.getAmenities().stream()
+                    .collect(java.util.stream.Collectors.toMap(HotelAmenityDTO::getId, amenityDTO -> amenityDTO));
+
+            // Iterate through existing amenities and update or remove based on submitted data
+            existingHotel.getAmenities().removeIf(existingAmenity -> {
+                HotelAmenityDTO submittedAmenityDTO = submittedAmenitiesMap.get(existingAmenity.getId());
+                if (submittedAmenityDTO != null) {
+                    // Update existing amenity properties
+                    existingAmenity.setAvailable(submittedAmenityDTO.isAvailable());
+                    existingAmenity.setPricePerDay(submittedAmenityDTO.getPricePerDay());
+                    return false; // Keep this amenity
+                } else {
+                    // This existing amenity was not in the submitted list, remove it
+                    return true; // Remove this amenity
+                }
+            });
+        }
+
         hotelRepository.save(existingHotel);
         log.info("Successfully updated existing hotel with ID: {} for Manager ID: {}", hotelDTO.getId(), managerId);
-        return mapHotelToHotelDto(existingHotel);    }
+        return mapHotelToHotelDto(existingHotel);
+    }
 
     @Override
     public void deleteHotelByIdAndManagerId(Long hotelId, Long managerId) {

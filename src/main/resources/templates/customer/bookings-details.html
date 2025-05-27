@@ -40,6 +40,13 @@
                             </li>
                         </ul>
                         <hr>
+                        <h5>Selected Services:</h5>
+                        <ul class="mb-3">
+                            <li th:each="service : ${bookingDTO.serviceSelections}">
+                                <span th:text="${service.count}"></span> x <span th:text="${service.serviceType}"></span>
+                            </li>
+                        </ul>
+                        <hr>
                         <h3>Total Price:</h3>
                         <p class="mb-3" th:text="'$ ' + ${#numbers.formatDecimal(bookingDTO.totalPrice, 1, 'COMMA', 2, 'POINT')}"></p>
                         <h5 class="small">Payment Method:</h5>

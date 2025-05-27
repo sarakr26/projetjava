@@ -27,4 +27,7 @@ public class HotelAvailabilityDTO {
 
     private Integer maxAvailableDoubleRooms;
 
+    @Builder.Default
+    private List<HotelAmenityDTO> amenities = new ArrayList<>();
+
 }
