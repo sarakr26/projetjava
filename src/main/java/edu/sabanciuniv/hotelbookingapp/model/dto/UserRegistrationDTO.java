@@ -14,6 +14,7 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class UserRegistrationDTO {
 
     @NotBlank(message = "Email address cannot be empty")
@@ -27,6 +28,7 @@ public class UserRegistrationDTO {
     @NotBlank(message = "Name cannot be empty")
     @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Name must only contain letters")
     private String name;
+    
 
     @NotBlank(message = "Last name cannot be empty")
     @Pattern(regexp = "^(?!\\s*$)[A-Za-z ]+$", message = "Last name must only contain letters")

@@ -80,6 +80,37 @@
                             </div>
                         </div>
 
+                        <!-- Hotel Services -->
+                        <div class="services-section">
+                            <h3 class="section-title">Hotel Services</h3>
+                            <div class="services-grid">
+                                <div th:each="amenity, iterStat : ${hotel.amenities}" class="service-item">
+                                    <input type="hidden" th:field="*{amenities[__${iterStat.index}__].id}">
+                                    <input type="hidden" th:field="*{amenities[__${iterStat.index}__].serviceType}">
+                                    
+                                    <div class="service-header">
+                                        <i th:data-lucide="${amenity.serviceType.name().toLowerCase()}" class="service-icon"></i>
+                                        <span th:text="${amenity.serviceType.displayName}">Service Name</span>
+                                    </div>
+                                    
+                                    <div class="service-inputs">
+                                        <div class="input-group">
+                                            <i data-lucide="dollar-sign" class="input-icon"></i>
+                                            <input class="search-input" type="number" step="0.01" 
+                                                   th:field="*{amenities[__${iterStat.index}__].pricePerDay}" 
+                                                   th:placeholder="'Price per day'">
+                                        </div>
+                                        
+                                        <label class="toggle-switch">
+                                            <input type="checkbox" th:field="*{amenities[__${iterStat.index}__].available}">
+                                            <span class="slider"></span>
+                                            <span class="toggle-label">Available</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="hotel-actions">
                             <button type="submit" class="search-button">
                                 <i data-lucide="save"></i>

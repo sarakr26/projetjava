@@ -27,4 +27,7 @@ public class HotelDTO {
 
     private String managerUsername;
 
+    @Valid
+    private List<HotelAmenityDTO> amenities = new ArrayList<>();
+
 }

@@ -3,6 +3,7 @@ package edu.sabanciuniv.hotelbookingapp.service.impl;
 import edu.sabanciuniv.hotelbookingapp.exception.HotelAlreadyExistsException;
 import edu.sabanciuniv.hotelbookingapp.model.*;
 import edu.sabanciuniv.hotelbookingapp.model.dto.*;
+import edu.sabanciuniv.hotelbookingapp.repository.HotelAmenityRepository;
 import edu.sabanciuniv.hotelbookingapp.repository.HotelRepository;
 import edu.sabanciuniv.hotelbookingapp.service.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -28,6 +29,7 @@ public class HotelServiceImpl implements HotelService {
     private final RoomService roomService;
     private final UserService userService;
     private final HotelManagerService hotelManagerService;
+    private final HotelAmenityRepository hotelAmenityRepository;
 
     @Override
     @Transactional
@@ -40,7 +42,6 @@ public class HotelServiceImpl implements HotelService {
         }
 
         Hotel hotel = mapHotelRegistrationDtoToHotel(hotelRegistrationDTO);
-
         Address savedAddress = addressService.saveAddress(hotelRegistrationDTO.getAddressDTO());
         hotel.setAddress(savedAddress);
 
@@ -51,14 +52,28 @@ public class HotelServiceImpl implements HotelService {
         hotel.setHotelManager(hotelManager);
 
         // Saving hotel to be able to bind rooms to hotel id
-        hotel = hotelRepository.save(hotel);
+        final Hotel savedHotel = hotelRepository.save(hotel);
 
-        List<Room> savedRooms = roomService.saveRooms(hotelRegistrationDTO.getRoomDTOs(), hotel);
-        hotel.setRooms(savedRooms);
+        List<Room> savedRooms = roomService.saveRooms(hotelRegistrationDTO.getRoomDTOs(), savedHotel);
+        savedHotel.setRooms(savedRooms);
 
-        Hotel savedHotel = hotelRepository.save(hotel);
-        log.info("Successfully saved new hotel with ID: {}", hotel.getId());
-        return savedHotel;
+        // Save hotel amenities
+        if (hotelRegistrationDTO.getAmenities() != null) {
+            List<HotelAmenity> amenities = hotelRegistrationDTO.getAmenities().stream()
+                .filter(HotelAmenityDTO::isAvailable)
+                .map(amenityDTO -> HotelAmenity.builder()
+                    .hotel(savedHotel)  // Using savedHotel instead of hotel
+                    .serviceType(amenityDTO.getServiceType())
+                    .pricePerDay(amenityDTO.getPricePerDay())
+                    .available(true)
+                    .build())
+                .collect(Collectors.toList());
+            
+            hotelAmenityRepository.saveAll(amenities);
+            savedHotel.setAmenities(amenities);
+        }
+
+        return hotelRepository.save(savedHotel);
     }
 
     @Override
@@ -183,16 +198,26 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public HotelDTO mapHotelToHotelDto(Hotel hotel) {
         List<RoomDTO> roomDTOs = hotel.getRooms().stream()
-                .map(roomService::mapRoomToRoomDto)  // convert each Room to RoomDTO
-                .collect(Collectors.toList());  // collect results to a list
+                .map(roomService::mapRoomToRoomDto)
+                .collect(Collectors.toList());
 
         AddressDTO addressDTO = addressService.mapAddressToAddressDto(hotel.getAddress());
+
+        List<HotelAmenityDTO> amenityDTOs = hotel.getAmenities().stream()
+                .map(amenity -> HotelAmenityDTO.builder()
+                        .id(amenity.getId())
+                        .serviceType(amenity.getServiceType())
+                        .pricePerDay(amenity.getPricePerDay())
+                        .available(amenity.isAvailable())
+                        .build())
+                .collect(Collectors.toList());
 
         return HotelDTO.builder()
                 .id(hotel.getId())
                 .name(hotel.getName())
                 .addressDTO(addressDTO)
                 .roomDTOs(roomDTOs)
+                .amenities(amenityDTOs)
                 .managerUsername(hotel.getHotelManager().getUser().getUsername())
                 .build();
     }

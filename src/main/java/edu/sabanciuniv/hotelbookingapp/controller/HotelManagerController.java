@@ -22,7 +22,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
+import edu.sabanciuniv.hotelbookingapp.model.enums.ServiceType;
+import edu.sabanciuniv.hotelbookingapp.model.dto.HotelAmenityDTO;
+import edu.sabanciuniv.hotelbookingapp.model.Hotel;
 
 @Controller
 @RequestMapping("/manager")
@@ -41,30 +46,45 @@ public class HotelManagerController {
 
     @GetMapping("/hotels/add")
     public String showAddHotelForm(Model model) {
-        HotelRegistrationDTO hotelRegistrationDTO = new HotelRegistrationDTO();
-
-        // Initialize roomDTOs with SINGLE and DOUBLE room types
-        RoomDTO singleRoom = new RoomDTO(null, null, RoomType.SINGLE, 0, 0.0);
-        RoomDTO doubleRoom = new RoomDTO(null, null, RoomType.DOUBLE, 0, 0.0);
-        hotelRegistrationDTO.getRoomDTOs().add(singleRoom);
-        hotelRegistrationDTO.getRoomDTOs().add(doubleRoom);
-
-        model.addAttribute("hotel", hotelRegistrationDTO);
+        HotelRegistrationDTO hotel = new HotelRegistrationDTO();
+        
+        // Initialize room DTOs
+        hotel.setRoomDTOs(Arrays.asList(
+            RoomDTO.builder().roomType(RoomType.SINGLE).build(),
+            RoomDTO.builder().roomType(RoomType.DOUBLE).build()
+        ));
+        
+        // Initialize amenities with all service types
+        List<HotelAmenityDTO> amenities = Arrays.stream(ServiceType.values())
+            .map(type -> HotelAmenityDTO.builder()
+                .serviceType(type)
+                .pricePerDay(0.0)
+                .available(false)
+                .build())
+            .collect(Collectors.toList());
+        
+        hotel.setAmenities(amenities);
+        model.addAttribute("hotel", hotel);
         return "hotelmanager/hotels-add";
     }
 
     @PostMapping("/hotels/add")
-    public String addHotel(@Valid @ModelAttribute("hotel") HotelRegistrationDTO hotelRegistrationDTO, BindingResult result, RedirectAttributes redirectAttributes) {
+    public String addHotel(
+            @Valid @ModelAttribute("hotel") HotelRegistrationDTO hotelRegistrationDTO,
+            BindingResult result,
+            RedirectAttributes redirectAttributes) {
+        
         if (result.hasErrors()) {
-            log.warn("Hotel creation failed due to validation errors: {}", result.getAllErrors());
             return "hotelmanager/hotels-add";
         }
+
         try {
-            hotelService.saveHotel(hotelRegistrationDTO);
-            redirectAttributes.addFlashAttribute("message", "Hotel (" + hotelRegistrationDTO.getName() + ") added successfully");
+            Hotel savedHotel = hotelService.saveHotel(hotelRegistrationDTO);
+            redirectAttributes.addFlashAttribute("message", 
+                "Hotel " + savedHotel.getName() + " has been successfully added!");
             return "redirect:/manager/hotels";
-        } catch (HotelAlreadyExistsException e) {
-            result.rejectValue("name", "hotel.exists", e.getMessage());
+        } catch (Exception e) {
+            result.rejectValue("name", "error.hotel", e.getMessage());
             return "hotelmanager/hotels-add";
         }
     }
