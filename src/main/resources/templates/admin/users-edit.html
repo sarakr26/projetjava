@@ -1,48 +1,90 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{/layout/layout-main}">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Edit User</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit User - GuestGate</title>
+    <link href="https://unpkg.com/lucide-css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
 </head>
 <body>
-<th:block layout:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8 offset-md-2">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="text-center">User Editing</h2>
-                    </div>
-                    <div class="card-body">
-                        <form method="post" th:action="@{/admin/users/edit/{id}(id=${user.id})}" th:object="${user}">
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="username">Email:</label>
-                                <input class="form-control" id="username" type="email" th:field="*{username}"
-                                       placeholder="Enter email address">
-                                <p class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></p>
+<th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
+
+<div class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <div class="hero-text">
+                <h1 class="hero-title">Edit User</h1>
+                <p class="hero-description">Modify user information</p>
+            </div>
+
+            <div class="search-container admin-table-container">
+                <div class="admin-card">
+                    <a href="/admin/users" class="back-link">
+                        <i data-lucide="arrow-left"></i>
+                        Back to Users List
+                    </a>
+
+                    <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" 
+                          th:object="${user}" 
+                          method="post" 
+                          class="edit-form">
+                        
+                        <div class="form-group">
+                            <label for="username">Email</label>
+                            <div class="input-group">
+                                <i data-lucide="mail" class="input-icon"></i>
+                                <input type="email" 
+                                       id="username"
+                                       th:field="*{username}"
+                                       class="search-input"
+                                       required>
                             </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="name">First Name:</label>
-                                <input class="form-control" id="name" type="text" th:field="*{name}"
-                                       placeholder="Enter first name">
-                                <p class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+                            <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name">First Name</label>
+                            <div class="input-group">
+                                <i data-lucide="user" class="input-icon"></i>
+                                <input type="text" 
+                                       id="name"
+                                       th:field="*{name}"
+                                       class="search-input"
+                                       required>
                             </div>
-                            <div class="form-group mb-3">
-                                <label class="form-label" for="lastName">Last Name:</label>
-                                <input class="form-control" id="lastName" type="text" th:field="*{lastName}"
-                                       placeholder="Enter last name">
-                                <p class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></p>
+                            <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="lastName">Last Name</label>
+                            <div class="input-group">
+                                <i data-lucide="user" class="input-icon"></i>
+                                <input type="text" 
+                                       id="lastName"
+                                       th:field="*{lastName}"
+                                       class="search-input"
+                                       required>
                             </div>
-                            <div class="form-group mb-3">
-                                <button type="submit" class="btn btn-primary">Update User Info</button>
-                                <a th:href="@{/admin/users}" class="btn btn-secondary">Cancel</a>
-                            </div>
-                        </form>
-                    </div>
+                            <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                        </div>
+
+                        <div class="action-buttons-container">
+                            <button type="submit" class="admin-button">
+                                <i data-lucide="save"></i>
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
-</th:block>
+</div>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
 </body>
 </html>
