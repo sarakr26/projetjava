@@ -9,7 +9,7 @@ import edu.sabanciuniv.hotelbookingapp.repository.BookingRepository;
 import edu.sabanciuniv.hotelbookingapp.service.*;
 import edu.sabanciuniv.hotelbookingapp.chain.*;
 import edu.sabanciuniv.hotelbookingapp.strategy.*;
-import edu.sabanciuniv.hotelbookingapp.observer.*;
+
 import edu.sabanciuniv.hotelbookingapp.builder.BookingBuilder;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -33,6 +33,7 @@ public class BookingServiceImpl implements BookingService {
     private final PaymentService paymentService;
     private final CustomerService customerService;
     private final HotelService hotelService;
+    private final BookingValidatorFactory validatorFactory;
 
     @Override
     @Transactional
@@ -42,6 +43,13 @@ public class BookingServiceImpl implements BookingService {
             
             // Save initial booking
             Booking booking = saveBooking(bookingInitiationDTO, customerId);
+            
+            // Validate using the chain
+            BookingValidator validator = validatorFactory.createValidatorChain();
+            if (!validator.validate(booking)) {
+                throw new IllegalArgumentException("Booking validation failed");
+            }
+            
             booking = bookingRepository.saveAndFlush(booking);
             
             // Process payment

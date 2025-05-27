@@ -12,6 +12,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import edu.sabanciuniv.hotelbookingapp.model.Booking;
+import edu.sabanciuniv.hotelbookingapp.chain.BookingValidator;
+import edu.sabanciuniv.hotelbookingapp.chain.BookingValidatorFactory;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -30,12 +33,24 @@ public class HotelSearchServiceImpl implements HotelSearchService {
     private final AddressService addressService;
     private final RoomService roomService;
     private final AvailabilityService availabilityService;
+    private final BookingValidatorFactory validatorFactory;
 
     @Override
     public List<HotelAvailabilityDTO> findAvailableHotelsByCityAndDate(String city, LocalDate checkinDate, LocalDate checkoutDate) {
-        validateCheckinAndCheckoutDates(checkinDate, checkoutDate);
+        // Create a temporary booking for validation
+        Booking tempBooking = Booking.builder()
+            .checkinDate(checkinDate)
+            .checkoutDate(checkoutDate)
+            .build();
+            
+        // Validate using the chain
+        BookingValidator validator = validatorFactory.createValidatorChain();
+        if (!validator.validate(tempBooking)) {
+            throw new IllegalArgumentException("Invalid booking dates");
+        }
 
-        log.info("Attempting to find hotels in {} with available rooms from {} to {}", city, checkinDate, checkoutDate);
+        log.info("Attempting to find hotels in {} with available rooms from {} to {}", 
+                city, checkinDate, checkoutDate);
 
         // Number of days between check-in and check-out
         Long numberOfDays = ChronoUnit.DAYS.between(checkinDate, checkoutDate);
@@ -64,7 +79,17 @@ public class HotelSearchServiceImpl implements HotelSearchService {
 
     @Override
     public HotelAvailabilityDTO findAvailableHotelById(Long hotelId, LocalDate checkinDate, LocalDate checkoutDate) {
-        validateCheckinAndCheckoutDates(checkinDate, checkoutDate);
+        // Create a temporary booking for validation
+        Booking tempBooking = Booking.builder()
+            .checkinDate(checkinDate)
+            .checkoutDate(checkoutDate)
+            .build();
+            
+        // Validate using the chain
+        BookingValidator validator = validatorFactory.createValidatorChain();
+        if (!validator.validate(tempBooking)) {
+            throw new IllegalArgumentException("Invalid booking dates");
+        }
 
         log.info("Attempting to find hotel with ID {} with available rooms from {} to {}", hotelId, checkinDate, checkoutDate);
 
@@ -118,15 +143,6 @@ public class HotelSearchServiceImpl implements HotelSearchService {
         hotelAvailabilityDTO.setMaxAvailableDoubleRooms(maxAvailableDoubleRooms);
 
         return hotelAvailabilityDTO;
-    }
-
-    private void validateCheckinAndCheckoutDates(LocalDate checkinDate, LocalDate checkoutDate) {
-        if (checkinDate.isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Check-in date cannot be in the past");
-        }
-        if (checkoutDate.isBefore(checkinDate.plusDays(1))) {
-            throw new IllegalArgumentException("Check-out date must be after check-in date");
-        }
     }
 
 }
