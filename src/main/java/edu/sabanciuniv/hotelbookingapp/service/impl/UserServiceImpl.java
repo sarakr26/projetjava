@@ -12,6 +12,7 @@ import edu.sabanciuniv.hotelbookingapp.repository.HotelManagerRepository;
 import edu.sabanciuniv.hotelbookingapp.repository.RoleRepository;
 import edu.sabanciuniv.hotelbookingapp.repository.UserRepository;
 import edu.sabanciuniv.hotelbookingapp.service.UserService;
+import edu.sabanciuniv.hotelbookingapp.service.NotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +43,7 @@ public class UserServiceImpl implements UserService {
     private final HotelManagerRepository hotelManagerRepository;
     private final AdminRepository adminRepository;
     private final PasswordEncoder passwordEncoder;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -67,6 +69,13 @@ public class UserServiceImpl implements UserService {
         }
 
         User savedUser = userRepository.save(user);
+        
+        // Notify user about successful registration
+        notificationService.notifyNewAccount(
+            savedUser.getUsername(),
+            savedUser.getName()
+        );
+        
         log.info("Successfully saved new user: {}", registrationDTO.getUsername());
         return savedUser;
     }

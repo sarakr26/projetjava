@@ -34,6 +34,7 @@ public class BookingServiceImpl implements BookingService {
     private final CustomerService customerService;
     private final HotelService hotelService;
     private final BookingValidatorFactory validatorFactory;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -58,6 +59,12 @@ public class BookingServiceImpl implements BookingService {
             // Update booking with payment reference
             booking.setPayment(payment);
             booking = bookingRepository.saveAndFlush(booking);
+            
+            // Notify customer about booking confirmation
+            notificationService.notifyBookingConfirmation(
+                booking.getCustomer().getUser().getUsername(),
+                booking.getConfirmationNumber()
+            );
             
             log.info("Booking confirmed successfully. ID: {}, Payment ID: {}", 
                     booking.getId(), payment.getId());
