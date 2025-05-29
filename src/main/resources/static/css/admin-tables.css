@@ -1,0 +1,129 @@
+.admin-table {
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.admin-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table thead {
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.admin-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+}
+
+.admin-table td {
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.admin-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-table .user-cell, .hotel-cell, .booking-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.admin-table .user-avatar, .hotel-avatar, .booking-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e9ecef;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-table .user-info, .hotel-info, .booking-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-table .name {
+    font-weight: 500;
+    color: #212529;
+}
+
+.admin-table .sub-info {
+    font-size: 0.875rem;
+    color: #6c757d;
+}
+
+.admin-table .action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.admin-table .edit-btn, .delete-btn, .view-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    font-size: 0.875rem;
+}
+
+.admin-table .edit-btn {
+    background-color: #1a73e8;
+    color: white;
+}
+
+.admin-table .view-btn {
+    background-color: #34a853;
+    color: white;
+}
+
+.admin-table .delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.admin-table .status-tag {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.admin-table .price-tag {
+    font-weight: 500;
+    color: #198754;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.admin-stats {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #495057;
+}
+
+.stat-number {
+    font-weight: 600;
+    color: #1a73e8;
+}

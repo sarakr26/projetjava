@@ -30,4 +30,9 @@ public class HotelAvailabilityDTO {
     @Builder.Default
     private List<HotelAmenityDTO> amenities = new ArrayList<>();
 
+    @Builder.Default
+    private List<String> photos = new ArrayList<>();
+
+    @Deprecated
+    private String photoUrl; // Keeping for backward compatibility
 }

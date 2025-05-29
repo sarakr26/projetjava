@@ -6,6 +6,7 @@
     <title>Bookings Management - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <link href="/css/admin-tables.css" rel="stylesheet">
 </head>
 <body>
 <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
@@ -13,80 +14,84 @@
 <div class="hero">
     <div class="hero-overlay">
         <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">Bookings Management</h1>
-                <p class="hero-description">View and manage all reservations</p>
-            </div>
-
-            <div class="search-container admin-table-container">
-                <div class="admin-card">
-                    <div class="admin-header">
-                        <div class="admin-stats">
-                            <span>Total Bookings:</span>
-                            <span class="stat-number" th:text="${#lists.size(bookings)}">0</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-table">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Booking Details</th>
-                                <th>Hotel</th>
-                                <th>Customer</th>
-                                <th>Price</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="booking : ${bookings}">
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar">
-                                            <i data-lucide="calendar"></i>
-                                        </div>
-                                        <div class="user-info">
-                                            <span class="name" th:text="'Booking #' + ${booking.id}">Booking #1</span>
-                                            <span class="sub-info" th:text="${booking.bookingDate}">2023-01-01</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar">
-                                            <i data-lucide="building"></i>
-                                        </div>
-                                        <div class="user-info">
-                                            <span class="name" th:text="${booking.hotelName}">Hotel Name</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar">
-                                            <i data-lucide="user"></i>
-                                        </div>
-                                        <div class="user-info">
-                                            <span class="name" th:text="${booking.customerEmail}">customer@email.com</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="price-tag" th:text="'$' + ${#numbers.formatDecimal(booking.totalPrice, 0, 'COMMA', 2, 'POINT')}">$100.00</span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a th:href="@{/admin/bookings/{id}(id=${booking.id})}"
-                                           class="edit-btn" title="View Details">
-                                            <i data-lucide="eye"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+            <div class="admin-table-container">
+                <div class="admin-table-header">
+                    <h1 class="admin-table-title">
+                        <i data-lucide="book"></i>
+                        Bookings Management
+                    </h1>
+                    <div class="admin-stats">
+                        <i data-lucide="calendar"></i>
+                        <span>Total Bookings: </span>
+                        <span class="stat-number" th:text="${#lists.size(bookings)}">0</span>
                     </div>
                 </div>
+
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Booking Reference</th>
+                            <th>Hotel</th>
+                            <th>Customer</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="booking : ${bookings}">
+                            <td>
+                                <div class="entity-info">
+                                    <div class="entity-icon">
+                                        <i data-lucide="file-text"></i>
+                                    </div>
+                                    <div class="entity-details">
+                                        <span class="entity-name" th:text="${booking.confirmationNumber}">ABC123</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="entity-info">
+                                    <div class="entity-icon">
+                                        <i data-lucide="building"></i>
+                                    </div>
+                                    <div class="entity-details">
+                                        <span class="entity-name" th:text="${booking.hotelName}">Hotel Name</span>
+                                    </div>
+                                </div>
+                            </td>                            <td>
+                                <div class="entity-info">
+                                    <div class="entity-icon">
+                                        <i data-lucide="user"></i>
+                                    </div>
+                                    <div class="entity-details">
+                                        <span class="entity-name" th:text="${booking.customerName}">Customer Name</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-tag" 
+                                      th:classappend="${booking.paymentStatus.name() == 'PAID'} ? 'status-active' : (${booking.paymentStatus.name() == 'PENDING'} ? 'status-pending' : 'status-inactive')"
+                                      th:text="${booking.paymentStatus.name()}">PAID</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-edit" 
+                                            th:onclick="'window.location.href=\'/admin/bookings/' + ${booking.id} + '\''">
+                                        <i data-lucide="eye"></i> View
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(bookings)}">
+                            <td colspan="5">
+                                <div class="empty-state">
+                                    <i data-lucide="calendar"></i>
+                                    <p>No bookings found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

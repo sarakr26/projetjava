@@ -6,6 +6,7 @@
     <title>Hotel Details - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <link href="/css/photo-gallery.css" rel="stylesheet">
 </head>
 <body>
     <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
@@ -19,6 +20,26 @@
                         <i data-lucide="map-pin" class="info-icon"></i>
                         <span th:text="${hotel.addressDTO.city + ', ' + hotel.addressDTO.country}">Location</span>
                     </p>
+                </div>
+
+                <!-- Photo Gallery -->
+                <div class="photo-gallery">
+                    <div class="gallery-container">
+                        <div class="gallery-main-photo">
+                            <img th:if="${!#lists.isEmpty(hotel.photos)}" th:src="${hotel.photos[0]}" alt="Main Hotel Photo" class="main-photo" id="mainPhoto">
+                            <div th:if="${#lists.isEmpty(hotel.photos)}" class="no-photos">
+                                <i data-lucide="image-off" class="no-photos-icon"></i>
+                                <p>No photos available</p>
+                            </div>
+                        </div>
+                        <div th:if="${!#lists.isEmpty(hotel.photos) && hotel.photos.size() > 1}" class="gallery-thumbnails">
+                            <div th:each="photo, stat : ${hotel.photos}" class="gallery-thumbnail" 
+                                 th:data-photo-url="${photo}"
+                                 th:classappend="${stat.first} ? 'active' : ''">
+                                <img th:src="${photo}" th:alt="'Hotel Photo ' + ${stat.count}" class="thumbnail-img">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="dates-info">
@@ -121,6 +142,24 @@
     <script th:src="@{/js/hotel-map.js}"></script>
     <script th:inline="javascript">
         lucide.createIcons();
+        
+        // Initialize photo gallery functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const thumbnails = document.querySelectorAll('.gallery-thumbnail');
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    const photoUrl = this.getAttribute('data-photo-url');
+                    const mainPhoto = document.getElementById('mainPhoto');
+                    
+                    // Update main photo
+                    mainPhoto.src = photoUrl;
+                    
+                    // Update active thumbnail
+                    thumbnails.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
         
         $(document).ready(function() {
             const roomSelect = $(".room-select");

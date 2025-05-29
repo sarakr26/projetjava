@@ -6,18 +6,18 @@
     <title>Edit Hotel - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <link href="/css/hotel-form.css" rel="stylesheet">
 </head>
 <body>
     <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
 
     <div class="hero">
         <div class="hero-overlay">
-            <div class="hero-content">
-                <div class="login-container">
+            <div class="hero-content">                <div class="hotel-form-container">
                     <h1 class="hero-title">Edit Hotel</h1>
                     <p class="hero-description">Update your property information</p>
 
-                    <form method="post" th:action="@{/manager/hotels/edit/{id}(id=${hotel.id})}" th:object="${hotel}">
+                    <form method="post" th:action="@{/manager/hotels/edit/{id}(id=${hotel.id})}" th:object="${hotel}" class="hotel-form" enctype="multipart/form-data">
                         <input type="hidden" th:field="*{id}">
                         <input type="hidden" th:field="*{addressDTO.id}">
                         <input type="hidden" th:field="*{managerUsername}">
@@ -78,11 +78,12 @@
                                 <input class="search-input" type="number" step="0.01" th:field="*{roomDTOs[1].pricePerNight}" placeholder="Price per night ($)">
                                 <p class="text-danger" th:if="${#fields.hasErrors('roomDTOs[1].pricePerNight')}" th:errors="*{roomDTOs[1].pricePerNight}"></p>
                             </div>
-                        </div>
-
-                        <!-- Hotel Services -->
+                        </div>                        <!-- Hotel Services -->
                         <div class="services-section">
-                            <h3 class="section-title">Hotel Services</h3>
+                            <h3 class="section-title">
+                                <i data-lucide="check-circle" class="section-icon"></i>
+                                Hotel Services
+                            </h3>
                             <div class="services-grid">
                                 <div th:each="amenity, iterStat : ${hotel.amenities}" class="service-item">
                                     <input type="hidden" th:field="*{amenities[__${iterStat.index}__].id}">
@@ -109,6 +110,29 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>                        <!-- Hotel Photos -->
+                        <div class="photos-section">
+                            <h3 class="section-title">
+                                <i data-lucide="image" class="section-icon"></i>
+                                Hotel Photos
+                            </h3>
+                            <p class="section-description">Upload up to 6 photos of your hotel (Max size: 10MB each)</p>
+                            
+                            <div class="photo-upload-grid">
+                                <!-- Photo Upload Slots -->
+                                <div th:each="i : ${#numbers.sequence(1, 6)}" class="photo-upload-item">
+                                    <div class="photo-preview" th:id="'preview-' + ${i}">
+                                        <i data-lucide="image" class="preview-icon"></i>
+                                        <span class="preview-text" th:text="'Photo ' + ${i}">Photo</span>
+                                    </div>
+                                    <input type="file" 
+                                           name="photos" 
+                                           accept="image/*" 
+                                           class="photo-input" 
+                                           th:id="'photo-' + ${i}"
+                                           th:onchange="'previewImage(this, ' + ${i} + ')'">
+                                </div>
+                            </div>
                         </div>
 
                         <div class="hotel-actions">
@@ -122,6 +146,60 @@
                             </a>
                         </div>
                     </form>
+
+    <script>
+        lucide.createIcons();
+
+        function previewImage(input, index) {
+            const preview = document.getElementById('preview-' + index);
+            const file = input.files[0];
+            
+            if (file) {
+                // Validate file size (10MB max)
+                if (file.size > 10 * 1024 * 1024) {
+                    alert('File is too large. Maximum size is 10MB.');
+                    input.value = '';
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    alert('Please upload an image file.');
+                    input.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button type="button" class="remove-photo" onclick="removePhoto(${index})">
+                            <i data-lucide="x"></i>
+                        </button>
+                    `;
+                    lucide.createIcons();
+                }
+                reader.readAsDataURL(file);
+            } else {
+                resetPreview(index);
+            }
+        }
+
+        function removePhoto(index) {
+            const input = document.getElementById('photo-' + index);
+            input.value = '';
+            resetPreview(index);
+        }
+
+        function resetPreview(index) {
+            const preview = document.getElementById('preview-' + index);
+            preview.innerHTML = `
+                <i data-lucide="image" class="preview-icon"></i>
+                <span class="preview-text">Photo ${index}</span>
+            `;
+            lucide.createIcons();
+        }
+    </script>
                 </div>
             </div>
         </div>

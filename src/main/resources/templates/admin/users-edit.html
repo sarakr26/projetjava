@@ -13,70 +13,67 @@
 <div class="hero">
     <div class="hero-overlay">
         <div class="hero-content">
-            <div class="hero-text">
+            <div class="edit-form-container">
+                <a href="/admin/users" class="back-link">
+                    <i data-lucide="arrow-left"></i>
+                    Back to Users List
+                </a>
+
                 <h1 class="hero-title">Edit User</h1>
-                <p class="hero-description">Modify user information</p>
-            </div>
+                <p class="hero-description">Update user information</p>
 
-            <div class="search-container admin-table-container">
-                <div class="admin-card">
-                    <a href="/admin/users" class="back-link">
-                        <i data-lucide="arrow-left"></i>
-                        Back to Users List
-                    </a>
-
-                    <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" 
-                          th:object="${user}" 
-                          method="post" 
-                          class="edit-form">
-                        
-                        <div class="form-group">
-                            <label for="username">Email</label>
-                            <div class="input-group">
-                                <i data-lucide="mail" class="input-icon"></i>
-                                <input type="email" 
-                                       id="username"
-                                       th:field="*{username}"
-                                       class="search-input"
-                                       required>
-                            </div>
-                            <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+                <form th:action="@{/admin/users/edit/{id}(id=${user.id})}" 
+                      th:object="${user}" 
+                      method="post" 
+                      class="edit-form">
+                    
+                    <div class="form-group">
+                        <label for="username">Email Address</label>
+                        <div class="input-group">
+                            <i data-lucide="mail" class="input-icon"></i>
+                            <input type="email" 
+                                   id="username"
+                                   th:field="*{username}"
+                                   class="search-input"
+                                   placeholder="Enter email address"
+                                   required>
                         </div>
+                        <span class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></span>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="name">First Name</label>
-                            <div class="input-group">
-                                <i data-lucide="user" class="input-icon"></i>
-                                <input type="text" 
-                                       id="name"
-                                       th:field="*{name}"
-                                       class="search-input"
-                                       required>
-                            </div>
-                            <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    <div class="form-group">
+                        <label for="name">First Name</label>
+                        <div class="input-group">
+                            <i data-lucide="user" class="input-icon"></i>
+                            <input type="text" 
+                                   id="name"
+                                   th:field="*{name}"
+                                   class="search-input"
+                                   placeholder="Enter first name"
+                                   required>
                         </div>
+                        <span class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+                    </div>
 
-                        <div class="form-group">
-                            <label for="lastName">Last Name</label>
-                            <div class="input-group">
-                                <i data-lucide="user" class="input-icon"></i>
-                                <input type="text" 
-                                       id="lastName"
-                                       th:field="*{lastName}"
-                                       class="search-input"
-                                       required>
-                            </div>
-                            <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <div class="input-group">
+                            <i data-lucide="user" class="input-icon"></i>
+                            <input type="text" 
+                                   id="lastName"
+                                   th:field="*{lastName}"
+                                   class="search-input"
+                                   placeholder="Enter last name"
+                                   required>
                         </div>
+                        <span class="text-danger" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></span>
+                    </div>
 
-                        <div class="action-buttons-container">
-                            <button type="submit" class="admin-button">
-                                <i data-lucide="save"></i>
-                                Save Changes
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <button type="submit" class="edit-button">
+                        <i data-lucide="save"></i>
+                        Save Changes
+                    </button>
+                </form>
             </div>
         </div>
     </div>

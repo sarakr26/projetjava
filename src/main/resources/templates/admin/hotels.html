@@ -6,6 +6,7 @@
     <title>Hotel Management - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <link href="/css/admin-tables.css" rel="stylesheet">
 </head>
 <body>
 <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
@@ -13,69 +14,79 @@
 <div class="hero">
     <div class="hero-overlay">
         <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">Hotel Management</h1>
-                <p class="hero-description">View and manage all hotels</p>
-            </div>
+            <div class="admin-table-container">
+                <div class="admin-table-header">
+                    <h1 class="admin-table-title">Hotel Management</h1>
+                    <div class="admin-stats">
+                        <span>Total Hotels: </span>
+                        <span class="stat-number" th:text="${#lists.size(hotels)}">0</span>
+                    </div>
+                </div>
 
-            <div class="search-container admin-table-container">
                 <!-- Success Message -->
                 <div th:if="${param.success}" class="alert-success">
                     <i data-lucide="check-circle"></i>
                     <span th:text="'Hotel (ID: ' + ${updatedHotelId} + ') has been updated successfully'"></span>
                 </div>
 
-                <div class="admin-card">
-                    <div class="admin-header">
-                        <div class="admin-stats">
-                            <span>Total Hotels:</span>
-                            <span class="stat-number" th:text="${#lists.size(hotels)}">0</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-table">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>Hotel Information</th>
-                                <th>Manager</th>
-                                <th>Location</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="hotel : ${hotels}">
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar">
-                                            <i data-lucide="building"></i>
-                                        </div>
-                                        <div class="user-info">
-                                            <span class="name" th:text="${hotel.name}">Hotel Name</span>
-                                            <span class="sub-info" th:text="'ID: ' + ${hotel.id}">ID: 1</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td th:text="${hotel.managerUsername}">manager@email.com</td>
-                                <td th:text="${hotel.addressDTO?.city + ', ' + hotel.addressDTO?.country}">City, Country</td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a th:href="@{/admin/hotels/edit/{id}(id=${hotel.id})}"
-                                           class="edit-btn" title="Edit">
-                                            <i data-lucide="edit-2"></i>
-                                        </a>
-                                        <button class="delete-btn"
-                                                onclick="confirmDelete(this)"
-                                                th:data-id="${hotel.id}">
-                                            <i data-lucide="trash-2"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Hotel Information</th>
+                        <th>Manager</th>
+                        <th>Location</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="hotel : ${hotels}">
+                        <td>
+                            <div class="entity-info">
+                                <div class="entity-details">
+                                    <span class="entity-name" th:text="${hotel.name}">Hotel Name</span>
+                                    <span class="entity-meta" th:text="'ID: ' + ${hotel.id}">ID: 1</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="entity-details">
+                                <span class="entity-name" th:text="${hotel.managerUsername}">manager@email.com</span>
+                                <span class="entity-meta">Manager</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="entity-details">
+                                <span class="entity-name" th:text="${hotel.addressDTO?.city}">City</span>
+                                <span class="entity-meta" th:text="${hotel.addressDTO?.country}">Country</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-tag status-active">Active</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-action btn-edit"
+                                        th:onclick="'window.location.href=\'/admin/hotels/edit/' + ${hotel.id} + '\''">
+                                    <i data-lucide="edit-2"></i> Edit
+                                </button>
+                                <button class="btn-action btn-delete"
+                                        th:onclick="'confirmDelete(' + ${hotel.id} + ')'">
+                                    <i data-lucide="trash-2"></i> Delete
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(hotels)}">
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i data-lucide="hotel"></i>
+                                <p>No hotels found</p>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -85,11 +96,11 @@
 <script>
     lucide.createIcons();
 
-    function confirmDelete(button) {
+    function confirmDelete(hotelId) {
         if (confirm('Are you sure you want to delete this hotel?')) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/admin/hotels/delete/${button.dataset.id}`;
+            form.action = `/admin/hotels/delete/${hotelId}`;
             document.body.appendChild(form);
             form.submit();
         }

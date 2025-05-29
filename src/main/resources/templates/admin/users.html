@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management - GuestGate</title>
+    <title>Users Management - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
+    <link href="/css/admin-tables.css" rel="stylesheet">
 </head>
 <body>
 <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
@@ -13,73 +14,69 @@
 <div class="hero">
     <div class="hero-overlay">
         <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">User Management</h1>
-                <p class="hero-description">View and manage all system users</p>
-            </div>
-
-            <div class="search-container admin-table-container">
-                <!-- Success Message -->
-                <div th:if="${param.success}" class="alert-success">
-                    <i data-lucide="check-circle"></i>
-                    <span th:text="'User (ID: ' + ${updatedUserId} + ') has been updated successfully'"></span>
-                </div>
-
-                <div class="admin-card">
-                    <div class="admin-header">
-                        <div class="admin-stats">
-                            <span>Total Users:</span>
-                            <span class="stat-number" th:text="${#lists.size(users)}">0</span>
-                        </div>
-                    </div>
-
-                    <div class="admin-table">
-                        <table>
-                            <thead>
-                            <tr>
-                                <th>User Information</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Actions</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr th:each="user : ${users}">
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar">
-                                            <i data-lucide="user"></i>
-                                        </div>
-                                        <div class="user-info">
-                                            <span class="name" th:text="${user.name + ' ' + user.lastName}">John Doe</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td th:text="${user.username}">email@example.com</td>
-                                <td>
-                                    <span class="role-tag" th:text="${user.role.roleType.name()}"
-                                          th:classappend="${user.role.roleType.name().toLowerCase()}">
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <a th:href="@{/admin/users/edit/{id}(id=${user.id})}"
-                                           class="edit-btn" title="Edit">
-                                            <i data-lucide="edit-2"></i>
-                                        </a>
-                                        <button th:if="${user.role.roleType.name() != 'ADMIN'}"
-                                                class="delete-btn"
-                                                onclick="confirmDelete(this)"
-                                                th:data-id="${user.id}">
-                                            <i data-lucide="trash-2"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
+            <div class="admin-table-container">
+                <div class="admin-table-header">
+                    <h1 class="admin-table-title">Users Management</h1>
+                    <div class="admin-stats">
+                        <span>Total Users: </span>
+                        <span class="stat-number" th:text="${#lists.size(users)}">0</span>
                     </div>
                 </div>
+
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>User Information</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="user : ${users}">
+                            <td>
+                                <div class="entity-info">
+                                    <div class="entity-details">
+                                        <span class="entity-name" th:text="${user.username}">username@example.com</span>
+                                        <span class="entity-meta" th:text="'ID: ' + ${user.id}">ID: 1</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="entity-details">
+                                    <span class="entity-name" th:text="${user.name + ' ' + user.lastName}">Full Name</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-tag" 
+                                      th:classappend="${user.role.roleType.name() == 'ADMIN'} ? 'status-active' : (${user.role.roleType.name() == 'HOTEL_MANAGER'} ? 'status-pending' : 'status-inactive')"
+                                      th:text="${user.role.roleType.name()}">ROLE</span>
+                            </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn-action btn-edit" 
+                                            th:onclick="'window.location.href=\'/admin/users/edit/' + ${user.id} + '\''">
+                                        <i data-lucide="edit-2"></i> Edit
+                                    </button>
+                                    <button class="btn-action btn-delete"
+                                            th:if="${user.role.roleType.name() != 'ADMIN'}"
+                                            th:onclick="'confirmDelete(' + ${user.id} + ')'"
+                                            th:attr="data-user-id=${user.id}">
+                                        <i data-lucide="trash-2"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(users)}">
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i data-lucide="users"></i>
+                                    <p>No users found</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -89,11 +86,11 @@
 <script>
     lucide.createIcons();
 
-    function confirmDelete(button) {
+    function confirmDelete(userId) {
         if (confirm('Are you sure you want to delete this user?')) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = `/admin/users/delete/${button.dataset.id}`;
+            form.action = `/admin/users/delete/${userId}`;
             document.body.appendChild(form);
             form.submit();
         }

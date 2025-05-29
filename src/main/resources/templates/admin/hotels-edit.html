@@ -6,24 +6,21 @@
     <title>Edit Hotel - GuestGate</title>
     <link href="https://unpkg.com/lucide-css" rel="stylesheet">
     <link href="/css/styles.css" rel="stylesheet">
-</head>
+    <link href="/css/admin-forms.css" rel="stylesheet">
 <body>
 <th:block th:replace="~{fragment/navbar :: navbar}"></th:block>
 
 <div class="hero">
-    <div class="hero-overlay">
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1 class="hero-title">Edit Hotel</h1>
-                <p class="hero-description">Modify hotel information</p>
-            </div>
-
-            <div class="search-container admin-table-container">
-                <div class="admin-card">
+    <div class="hero-overlay">        <div class="hero-content">
+            <div class="admin-card">
+                <div class="card-header">
                     <a href="/admin/hotels" class="back-link">
                         <i data-lucide="arrow-left"></i>
                         Back to Hotels List
                     </a>
+                    <h1 class="hero-title">Edit Hotel</h1>
+                    <p class="hero-description">Modify hotel information</p>
+                </div>
 
                     <form method="post" 
                           th:action="@{/admin/hotels/edit/{id}(id=${hotel.id})}" 

@@ -33,7 +33,17 @@ public class AdminController {
     private final BookingService bookingService;
 
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(Model model) {
+        // Get total counts from services
+        long totalUsers = userService.findAllUsers().size();
+        long totalHotels = hotelService.findAllHotels().size();
+        long totalBookings = bookingService.findAllBookings().size();
+
+        // Add counts to model
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("totalHotels", totalHotels);
+        model.addAttribute("totalBookings", totalBookings);
+
         return "admin/dashboard";
     }
 

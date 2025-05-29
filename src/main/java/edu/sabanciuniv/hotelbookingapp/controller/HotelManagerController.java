@@ -19,15 +19,17 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import edu.sabanciuniv.hotelbookingapp.model.enums.ServiceType;
 import edu.sabanciuniv.hotelbookingapp.model.dto.HotelAmenityDTO;
 import edu.sabanciuniv.hotelbookingapp.model.Hotel;
+import edu.sabanciuniv.hotelbookingapp.service.PhotoService;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/manager")
@@ -38,6 +40,7 @@ public class HotelManagerController {
     private final HotelService hotelService;
     private final UserService userService;
     private final BookingService bookingService;
+    private final PhotoService photoService;
 
     @GetMapping("/dashboard")
     public String dashboard() {
@@ -72,6 +75,7 @@ public class HotelManagerController {
     public String addHotel(
             @Valid @ModelAttribute("hotel") HotelRegistrationDTO hotelRegistrationDTO,
             BindingResult result,
+            @RequestParam(value = "photos", required = false) MultipartFile[] photos,
             RedirectAttributes redirectAttributes) {
         
         if (result.hasErrors()) {
@@ -80,10 +84,30 @@ public class HotelManagerController {
 
         try {
             Hotel savedHotel = hotelService.saveHotel(hotelRegistrationDTO);
+            
+            // Save photos
+            if (photos != null && photos.length > 0) {
+                try {
+                    List<MultipartFile> validPhotos = Arrays.stream(photos)
+                        .filter(photo -> photo != null && !photo.isEmpty())
+                        .collect(Collectors.toList());
+                        
+                    if (!validPhotos.isEmpty()) {
+                        photoService.savePhotos(validPhotos, savedHotel);
+                    }
+                } catch (IOException e) {
+                    log.error("Error saving photos: {}", e.getMessage(), e);
+                    // Continue with hotel creation even if photo upload fails
+                    redirectAttributes.addFlashAttribute("warning", 
+                        "Hotel was created but there was an error uploading some photos. Please try uploading them again later.");
+                }
+            }
+            
             redirectAttributes.addFlashAttribute("message", 
                 "Hotel " + savedHotel.getName() + " has been successfully added!");
             return "redirect:/manager/hotels";
         } catch (Exception e) {
+            log.error("Error creating hotel: {}", e.getMessage(), e);
             result.rejectValue("name", "error.hotel", e.getMessage());
             return "hotelmanager/hotels-add";
         }

@@ -24,13 +24,11 @@ public class GlobalExceptionHandler {
         modelAndView.addObject("errorMessage", ex.getMessage());
         modelAndView.addObject("errorTitle", "Duplicate Entry");
         return modelAndView;
-    }
-
-    @ExceptionHandler(BindException.class)
+    }    @ExceptionHandler(BindException.class)
     public ModelAndView handleValidationException(BindException ex) {
-        ModelAndView modelAndView = new ModelAndView("error");
-        modelAndView.addObject("errorMessage", "Validation error: " + ex.getBindingResult().getAllErrors().get(0).getDefaultMessage());
-        modelAndView.addObject("errorTitle", "Validation Error");
+        ModelAndView modelAndView = new ModelAndView("hotelmanager/hotels-add");
+        modelAndView.addObject("hotel", ex.getTarget());
+        modelAndView.addAllObjects(ex.getBindingResult().getModel());
         return modelAndView;
     }
 

@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import edu.sabanciuniv.hotelbookingapp.model.Booking;
 import edu.sabanciuniv.hotelbookingapp.chain.BookingValidator;
 import edu.sabanciuniv.hotelbookingapp.chain.BookingValidatorFactory;
+import edu.sabanciuniv.hotelbookingapp.model.Photo;
+import edu.sabanciuniv.hotelbookingapp.repository.PhotoRepository;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -34,6 +36,7 @@ public class HotelSearchServiceImpl implements HotelSearchService {
     private final RoomService roomService;
     private final AvailabilityService availabilityService;
     private final BookingValidatorFactory validatorFactory;
+    private final PhotoRepository photoRepository;
 
     @Override
     public List<HotelAvailabilityDTO> findAvailableHotelsByCityAndDate(String city, LocalDate checkinDate, LocalDate checkoutDate) {
@@ -106,17 +109,31 @@ public class HotelSearchServiceImpl implements HotelSearchService {
 
     @Override
     public HotelAvailabilityDTO mapHotelToHotelAvailabilityDto(Hotel hotel, LocalDate checkinDate, LocalDate checkoutDate) {
+        log.debug("Mapping hotel with ID {} to HotelAvailabilityDTO", hotel.getId());
         List<RoomDTO> roomDTOs = hotel.getRooms().stream()
                 .map(roomService::mapRoomToRoomDto)  // convert each Room to RoomDTO
                 .collect(Collectors.toList());
 
         AddressDTO addressDTO = addressService.mapAddressToAddressDto(hotel.getAddress());
         
+        // Get all photo URLs for the hotel
+        List<Photo> hotelPhotos = photoRepository.findByHotelId(hotel.getId());
+        List<String> photos = hotelPhotos.stream()
+                .map(Photo::getPhotoUrl)
+                .collect(Collectors.toList());
+        
+        // For backward compatibility
+        String photoUrl = photos.isEmpty() ? null : photos.get(0);
+        
+        log.debug("Hotel ID: {}, Photos found: {}", hotel.getId(), photos.size());
+        
         HotelAvailabilityDTO hotelAvailabilityDTO = HotelAvailabilityDTO.builder()
                 .id(hotel.getId())
                 .name(hotel.getName())
                 .addressDTO(addressDTO)
                 .roomDTOs(roomDTOs)
+                .photos(photos)
+                .photoUrl(photoUrl)
                 .amenities(hotel.getAmenities().stream()
                     .map(amenity -> HotelAmenityDTO.builder()
                         .id(amenity.getId())

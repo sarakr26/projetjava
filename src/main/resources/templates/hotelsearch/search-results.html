@@ -28,7 +28,12 @@
             <div th:unless="${noHotelsFound}" class="search-results">
                 <div th:each="hotel : ${hotels}" class="feature-card hotel-result-card">
                     <div class="hotel-image">
-                        <i data-lucide="building" class="hotel-placeholder-icon"></i>
+                        <th:block th:if="${hotel.photoUrl != null}">
+                            <img th:src="${hotel.photoUrl}" alt="Hotel Photo" class="hotel-photo">
+                        </th:block>
+                        <th:block th:unless="${hotel.photoUrl != null}">
+                            <i data-lucide="building" class="hotel-placeholder-icon"></i>
+                        </th:block>
                     </div>
                     <div class="hotel-info">
                         <h3 class="feature-title" th:text="${hotel.name}">Hotel Name</h3>
